@@ -1,4 +1,4 @@
-Code corresponding to cannabis ever-use and frequency GWAS analyses.
+Code corresponding to cannabis ever-use and frequency GWAS analyses from the International Cannabis Consortium (2026).
 
 Pasman, Gerring, Thorp et al., Genetics of cannabis ever-use and frequency across ancestries implicate novel loci and brain-specific biology (under revision).
 
