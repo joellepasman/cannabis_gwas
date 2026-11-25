@@ -1,0 +1,1060 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Cannabis PGS in STAGE},
+  pdfauthor={Joëlle Pasman},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Cannabis PGS in STAGE}
+\author{Joëlle Pasman}
+\date{November 19, 2025}
+
+\begin{document}
+\maketitle
+
+\hypertarget{prepare-data}{%
+\section{Prepare data}\label{prepare-data}}
+
+This code shows how polygenic risk scores were created to capture
+genetic risk for cannabis use to predict a set of outcomes in the STAGE
+dataset from the Swedish Twin Register. The genotype data are located at
+a different cluster space (Uppmax Bianca) than the phenotypic data and
+were linked by STR.
+
+\hypertarget{clean-phenotype-data}{%
+\subsection{Clean phenotype data}\label{clean-phenotype-data}}
+
+Documentation for these phenotypes can be requested from STR.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse) }
+\FunctionTok{library}\NormalTok{(data.table)}
+
+\NormalTok{raw }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"pheno\_stage.csv"}\NormalTok{)}
+
+\CommentTok{\# Cannabis}
+
+\NormalTok{canpheno }\OtherTok{\textless{}{-}}\NormalTok{ raw }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{can\_maxfrq =} \FunctionTok{ifelse}\NormalTok{(CANN\_AMO }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, CANNAMOV, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{can\_ever =} \FunctionTok{ifelse}\NormalTok{(DRUGS\_MARIJUAN }\SpecialCharTok{==} \DecValTok{1} \SpecialCharTok{|}\NormalTok{ DRUGS\_HASCH }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{can\_ever =} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(can\_ever) }\SpecialCharTok{\&}\NormalTok{ (DRUGS\_MARIJUAN }\SpecialCharTok{==} \DecValTok{0} \SpecialCharTok{|}\NormalTok{ DRUGS\_HASCH }\SpecialCharTok{==} \DecValTok{0}\NormalTok{), }\DecValTok{0}\NormalTok{, can\_ever)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{can\_agefirst =} \FunctionTok{ifelse}\NormalTok{(AGE\_CANN }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, AGECV, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{can\_agefirst =} \FunctionTok{ifelse}\NormalTok{(can\_agefirst }\SpecialCharTok{\textless{}} \DecValTok{10}\NormalTok{, }\ConstantTok{NA}\NormalTok{, can\_agefirst)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{can\_agemax =} \FunctionTok{ifelse}\NormalTok{(AGECANMO }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, AGECMV, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{can\_agemax =} \FunctionTok{ifelse}\NormalTok{(can\_agemax }\SpecialCharTok{\textless{}} \DecValTok{10}\NormalTok{, }\ConstantTok{NA}\NormalTok{, can\_agemax)) }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{c}\NormalTok{(can\_maxfrq, can\_agefirst, can\_agemax), scale)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(idSTR, can\_maxfrq, can\_ever, can\_agefirst, can\_agemax)}
+  
+\FunctionTok{fwrite}\NormalTok{(canpheno, }\StringTok{"canpheno.tsv"}\NormalTok{)}
+
+
+\CommentTok{\# Other substance us}
+
+\NormalTok{drugspheno }\OtherTok{\textless{}{-}}\NormalTok{ raw }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{opioids =} \FunctionTok{pmax}\NormalTok{(DRUGS\_OPIUM, DRUGS\_MORPH, DRUGS\_HEROIN, DRUGS\_CODEIN, }\AttributeTok{na.rm =}\NormalTok{ T)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{stimulants =} \FunctionTok{pmax}\NormalTok{(DRUGS\_COCAINE, DRUGS\_AMPHET, DRUGS\_METHYLP, }\AttributeTok{na.rm =}\NormalTok{ T)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{ecstacy =}\NormalTok{ DRUGS\_ECSTACY) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{halluci =} \FunctionTok{pmax}\NormalTok{(DRUGS\_LSD, DRUGS\_MUSHROOM, }\AttributeTok{na.rm =}\NormalTok{ T)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{tranq =} \FunctionTok{pmax}\NormalTok{(DRUGS\_ROHYPNOL, DRUGS\_SOPORIF, DRUGS\_GHB, }\AttributeTok{na.rm =}\NormalTok{ T)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{steroids =} \FunctionTok{pmax}\NormalTok{(DRUGS\_GROWTHH, DRUGS\_STEROIDS, }\AttributeTok{na.rm =}\NormalTok{ T)) }\SpecialCharTok{\%\textgreater{}\%}
+   \FunctionTok{mutate}\NormalTok{(}\AttributeTok{drugs\_not\_can =} \FunctionTok{pmax}\NormalTok{(DRUGS\_OPIUM, DRUGS\_MORPH, DRUGS\_HEROIN, DRUGS\_CODEIN, DRUGS\_COCAINE, DRUGS\_AMPHET, DRUGS\_METHYLP, DRUGS\_ECSTACY, DRUGS\_LSD, DRUGS\_MUSHROOM, DRUGS\_ROHYPNOL, DRUGS\_SOPORIF, DRUGS\_GHB, DRUGS\_GROWTHH, DRUGS\_STEROIDS, }\AttributeTok{na.rm =}\NormalTok{ T)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{alc\_abuse =} \FunctionTok{ifelse}\NormalTok{(X\_ALC\_ABUSE }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{alc\_abuse =} \FunctionTok{ifelse}\NormalTok{(X\_ALC\_ABUSE }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, alc\_abuse)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{smok\_reg =} \FunctionTok{ifelse}\NormalTok{(X\_REGSM }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\DecValTok{0}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{smok\_reg =} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(smok\_reg), }\DecValTok{0}\NormalTok{, smok\_reg)) }\SpecialCharTok{\%\textgreater{}\%} 
+   \FunctionTok{mutate}\NormalTok{(}\AttributeTok{smok\_ftnd =} \FunctionTok{scale}\NormalTok{(X\_FTNDSMOSCORE)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(idSTR, opioids, stimulants, ecstacy, halluci, tranq, steroids, drugs\_not\_can, alc\_abuse, smok\_reg, smok\_ftnd)}
+  
+
+\FunctionTok{fwrite}\NormalTok{(drugspheno, }\StringTok{"drugspheno.tsv"}\NormalTok{)}
+
+
+\CommentTok{\# Mental health}
+
+\DocumentationTok{\#\# Mental health dataset}
+\DocumentationTok{\#\# drop traits with \textless{}100 cases, except schizo}
+
+\NormalTok{psychpheno }\OtherTok{\textless{}{-}}\NormalTok{ raw }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{eatingdis =} \FunctionTok{ifelse}\NormalTok{(EATDIS }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{eatingdis =} \FunctionTok{ifelse}\NormalTok{(EATDIS }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, eatingdis)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{mdd =} \FunctionTok{ifelse}\NormalTok{(DEPRESS }\SpecialCharTok{==} \DecValTok{1} \SpecialCharTok{|}\NormalTok{ X\_DSM4DEP }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{mdd =} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(mdd) }\SpecialCharTok{\&}\NormalTok{ DEPRESS }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, mdd)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{mdd =} \FunctionTok{ifelse}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(mdd) }\SpecialCharTok{\&}\NormalTok{ X\_DSM4DEP }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, mdd)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{phobia =} \FunctionTok{ifelse}\NormalTok{(FOBIA }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{phobia =} \FunctionTok{ifelse}\NormalTok{(FOBIA }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, fobia)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{bip =} \FunctionTok{ifelse}\NormalTok{(MANICDEP }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{bip =} \FunctionTok{ifelse}\NormalTok{(MANICDEP }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, bip)) }\SpecialCharTok{\%\textgreater{}\%}   
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{ocd =} \FunctionTok{ifelse}\NormalTok{(OBSESS }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{ocd =} \FunctionTok{ifelse}\NormalTok{(OBSESS }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, ocd)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{panicdis =} \FunctionTok{ifelse}\NormalTok{(PANIC }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{panicdis =} \FunctionTok{ifelse}\NormalTok{(PANIC }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, panicdis)) }\SpecialCharTok{\%\textgreater{}\%}   
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{substancedis =} \FunctionTok{ifelse}\NormalTok{(DRUGSALC }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{substancedis =} \FunctionTok{ifelse}\NormalTok{(DRUGSALC }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, substancedis)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{schizo =} \FunctionTok{ifelse}\NormalTok{(SCHIZO }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{schizo =} \FunctionTok{ifelse}\NormalTok{(SCHIZO }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, schizo)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{tourette =} \FunctionTok{ifelse}\NormalTok{(TOURETTE }\SpecialCharTok{==} \DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{tourette =} \FunctionTok{ifelse}\NormalTok{(TOURETTE }\SpecialCharTok{==} \DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, tourette)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{impulsive =} \FunctionTok{ifelse}\NormalTok{(IMPULSIV }\SpecialCharTok{\textless{}} \DecValTok{10}\NormalTok{, }\FunctionTok{scale}\NormalTok{(IMPULSIV), }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(idSTR, eatingdis, mdd, fobia, bip, ocd, panicdis, substancedis, schizo, tourette, impulsive)}
+
+\FunctionTok{fwrite}\NormalTok{(psychpheno, }\StringTok{"psychpheno.tsv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{clean-sumstats}{%
+\subsection{Clean sumstats}\label{clean-sumstats}}
+
+The summary statistics that will form the basis for the PGSs are
+prepared.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Ever use}
+
+\NormalTok{CANNABIS\_EVR }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"results/metal/MA\_CANNABIS\_EVR\_250919.txt.gz"}\NormalTok{)}
+
+\NormalTok{CANNABIS\_EVR }\OtherTok{\textless{}{-}}\NormalTok{ CANNABIS\_EVR }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{beta =}\NormalTok{ BETA) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CHR\_BP =} \FunctionTok{paste0}\NormalTok{(CHR, }\StringTok{"\_"}\NormalTok{, BP)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(CHR\_BP) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{n}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(SNP) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(N)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{n}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }
+
+\FunctionTok{fwrite}\NormalTok{(CANNABIS\_EVR, }\StringTok{"results/metal/CANNABIS\_EVR\_formatted\_forldpred.txt"}\NormalTok{, }\AttributeTok{sep =} \StringTok{"}\SpecialCharTok{\textbackslash{}t}\StringTok{"}\NormalTok{)}
+
+\CommentTok{\# All{-}frequency}
+
+\NormalTok{FREQ\_MA }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"results/gsem/MA\_FREQ\_ALL\_250919.txt.gz"}\NormalTok{)}
+
+\NormalTok{FREQ\_MA }\OtherTok{\textless{}{-}}\NormalTok{ FREQ\_MA }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{beta =}\NormalTok{ BETA) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CHR\_BP =} \FunctionTok{paste0}\NormalTok{(CHR, }\StringTok{"\_"}\NormalTok{, BP)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(CHR\_BP) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{n}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(SNP) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(N)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{n}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }
+
+\FunctionTok{fwrite}\NormalTok{(FREQ\_MA, }\StringTok{"results/gsem/FREQ\_MA\_formatted.txt"}\NormalTok{, }\AttributeTok{sep =} \StringTok{"}\SpecialCharTok{\textbackslash{}t}\StringTok{"}\NormalTok{, }\AttributeTok{quote =}\NormalTok{ F, }\AttributeTok{na =} \StringTok{"NA"}\NormalTok{)}
+
+\CommentTok{\# All{-}cannabis}
+
+\NormalTok{FACTOR }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"results/gsem/MA\_CANN\_FACTOR\_250919.txt.gz"}\NormalTok{)}
+
+\NormalTok{FACTOR }\OtherTok{\textless{}{-}}\NormalTok{ FACTOR }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{beta =}\NormalTok{ BETA) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CHR\_BP =} \FunctionTok{paste0}\NormalTok{(CHR, }\StringTok{"\_"}\NormalTok{, BP)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(CHR\_BP) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{n}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(SNP) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(}\FunctionTok{desc}\NormalTok{(N)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{n}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }
+
+\FunctionTok{fwrite}\NormalTok{(FACTOR, }\StringTok{"results/gsem/CANNABIS\_FACTOR\_formatted.txt"}\NormalTok{, }\AttributeTok{sep =} \StringTok{"}\SpecialCharTok{\textbackslash{}t}\StringTok{"}\NormalTok{, }\AttributeTok{quote =}\NormalTok{ F, }\AttributeTok{na =} \StringTok{"NA"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{create-pgs-weighting-scheme}{%
+\section{Create PGS weighting
+scheme}\label{create-pgs-weighting-scheme}}
+
+Moving back to the server with the genetic data, relying on the
+CoMorMent containers
+(\url{https://github.com/comorment/ldpred2_standalone}) to run LDpred2
+to create LD-score weighted polygenic risk scores.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+
+\CommentTok{\# Ever use}
+
+\BuiltInTok{echo} \AttributeTok{{-}en} \StringTok{\textquotesingle{}\#!/bin/bash}
+\StringTok{\#SBATCH {-}{-}job{-}name=everpgs}
+\StringTok{\#SBATCH {-}p node}
+\StringTok{\#SBATCH {-}t 1:00:00}
+\StringTok{\#SBATCH {-}{-}array=1{-}22}
+
+\StringTok{export fileGenoRDS=stage\_geno$\{SLURM\_ARRAY\_TASK\_ID\}.rds}
+
+\StringTok{export REFERENCE=$COMORMENT/containers/reference}
+\StringTok{export LDPRED2\_REF=$COMORMENT/ldpred2\_ref}
+\StringTok{export SINGULARITY\_BIND=$REFERENCE:/REF,$\{LDPRED2\_REF\}:/ldpred2\_ref}
+\StringTok{export RSCRIPT="singularity exec {-}{-}home $PWD $SIF/r.sif Rscript"}
+
+\StringTok{\# Generate PGS using LDPRED2{-}auto}
+\StringTok{$RSCRIPT $COMORMENT/containers/scripts/pgs/LDpred2/ldpred2.R {-}{-}ldpred{-}mode auto \textbackslash{}}
+\StringTok{ {-}{-}merge{-}by{-}rsid \textbackslash{}}
+\StringTok{ {-}{-}effective{-}sample{-}size 560459 \textbackslash{}}
+\StringTok{ {-}{-}geno{-}file{-}rds $fileGenoRDS \textbackslash{}}
+\StringTok{ {-}{-}sumstats cannabis/CANNABIS\_EVR\_formatted\_forldpred.txt \textbackslash{}}
+\StringTok{ {-}{-}out cannabis/CANNABIS\_EVR$\{SLURM\_ARRAY\_TASK\_ID\}.auto}
+
+\StringTok{\textquotesingle{}} \OperatorTok{\textgreater{}}\NormalTok{ CANNABIS\_EVR\_ldpred2.sh}
+
+\ExtensionTok{sbatch}\NormalTok{ CANNABIS\_EVR\_ldpred2.sh}
+
+
+\CommentTok{\# All{-}frequency}
+
+\BuiltInTok{echo} \AttributeTok{{-}en} \StringTok{\textquotesingle{}\#!/bin/bash}
+\StringTok{\#SBATCH {-}{-}job{-}name=frq\_ma\_pgs}
+\StringTok{\#SBATCH {-}p node}
+\StringTok{\#SBATCH {-}t 1:00:00}
+\StringTok{\#SBATCH {-}{-}array=1{-}22}
+
+\StringTok{export fileGenoRDS=stage\_geno$\{SLURM\_ARRAY\_TASK\_ID\}.rds}
+
+\StringTok{export REFERENCE=$COMORMENT/containers/reference}
+\StringTok{export LDPRED2\_REF=$COMORMENT/ldpred2\_ref}
+\StringTok{export SINGULARITY\_BIND=$REFERENCE:/REF,$\{LDPRED2\_REF\}:/ldpred2\_ref}
+\StringTok{export RSCRIPT="singularity exec {-}{-}home $PWD $SIF/r.sif Rscript"}
+
+\StringTok{\# Generate PGS using LDPRED2{-}auto}
+\StringTok{$RSCRIPT $COMORMENT/containers/scripts/pgs/LDpred2/ldpred2.R {-}{-}ldpred{-}mode auto \textbackslash{}}
+\StringTok{{-}{-}merge{-}by{-}rsid \textbackslash{}}
+\StringTok{ {-}{-}col{-}n N \textbackslash{}}
+\StringTok{ {-}{-}geno{-}file{-}rds $fileGenoRDS \textbackslash{}}
+\StringTok{ {-}{-}sumstats cannabis/FREQ\_MA\_formatted.txt \textbackslash{}}
+\StringTok{ {-}{-}out cannabis/FREQ\_MA$\{SLURM\_ARRAY\_TASK\_ID\}.auto}
+
+\StringTok{\textquotesingle{}} \OperatorTok{\textgreater{}}\NormalTok{ FREQ\_MA\_ldpred2.sh}
+
+\ExtensionTok{sbatch}\NormalTok{ FREQ\_MA\_ldpred2.sh}
+
+
+\CommentTok{\# All{-}cannabis}
+
+\BuiltInTok{echo} \AttributeTok{{-}en} \StringTok{\textquotesingle{}\#!/bin/bash}
+\StringTok{\#SBATCH {-}{-}job{-}name=factor\_pgs}
+\StringTok{\#SBATCH {-}p node}
+\StringTok{\#SBATCH {-}t 1:00:00}
+\StringTok{\#SBATCH {-}{-}array=1{-}22}
+
+\StringTok{export fileGenoRDS=stage\_geno$\{SLURM\_ARRAY\_TASK\_ID\}.rds}
+
+\StringTok{export REFERENCE=$COMORMENT/containers/reference}
+\StringTok{export LDPRED2\_REF=$COMORMENT/ldpred2\_ref}
+\StringTok{export SINGULARITY\_BIND=$REFERENCE:/REF,$\{LDPRED2\_REF\}:/ldpred2\_ref}
+\StringTok{export RSCRIPT="singularity exec {-}{-}home $PWD $SIF/r.sif Rscript"}
+
+\StringTok{\# Generate PGS using LDPRED2{-}auto}
+\StringTok{$RSCRIPT $COMORMENT/containers/scripts/pgs/LDpred2/ldpred2.R {-}{-}ldpred{-}mode auto \textbackslash{}}
+\StringTok{{-}{-}merge{-}by{-}rsid \textbackslash{}}
+\StringTok{ {-}{-}col{-}n N \textbackslash{}}
+\StringTok{ {-}{-}geno{-}file{-}rds $fileGenoRDS \textbackslash{}}
+\StringTok{ {-}{-}sumstats cannabis/CANNABIS\_FACTOR\_formatted.txt \textbackslash{}}
+\StringTok{ {-}{-}out cannabis/CANNABIS\_FACTOR$\{SLURM\_ARRAY\_TASK\_ID\}.auto}
+
+\StringTok{\textquotesingle{}} \OperatorTok{\textgreater{}}\NormalTok{ CANNABIS\_FACTOR\_ldpred2.sh}
+
+\ExtensionTok{sbatch}\NormalTok{ CANNABIS\_FACTOR\_ldpred2.sh}
+\end{Highlighting}
+\end{Shaded}
+
+Concatenate the results (summing the per-chromosome scores).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Ever use}
+
+\NormalTok{file\_list }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\AttributeTok{pattern =} \StringTok{"CANNABIS\_EVR}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d+}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.auto"}\NormalTok{)}
+
+\NormalTok{data\_list }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(file\_list, }\ControlFlowTok{function}\NormalTok{(file) \{}
+\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(file, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  file\_num }\OtherTok{\textless{}{-}} \FunctionTok{sub}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.auto"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, }\FunctionTok{basename}\NormalTok{(file))}
+\NormalTok{  df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{rename\_with}\NormalTok{(}\SpecialCharTok{\textasciitilde{}} \FunctionTok{paste0}\NormalTok{(}\StringTok{"pgs\_"}\NormalTok{, file\_num), }\StringTok{"score"}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(df)}
+\NormalTok{\})}
+
+\NormalTok{CANNABIS\_EVR }\OtherTok{\textless{}{-}} \FunctionTok{Reduce}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x, y) }\FunctionTok{merge}\NormalTok{(x, y, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"FID"}\NormalTok{, }\StringTok{"IID"}\NormalTok{), }\AttributeTok{all =} \ConstantTok{TRUE}\NormalTok{), data\_list)}
+
+\NormalTok{CANNABIS\_EVR }\OtherTok{\textless{}{-}}\NormalTok{ CANNABIS\_EVR }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CANNABIS\_EVR\_pgs =} \FunctionTok{rowSums}\NormalTok{(}\FunctionTok{select}\NormalTok{(., }\FunctionTok{starts\_with}\NormalTok{(}\StringTok{"pgs\_CANNABIS\_EVR"}\NormalTok{)), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(FID, IID, CANNABIS\_EVR\_pgs)}
+
+\FunctionTok{fwrite}\NormalTok{(CANNABIS\_EVR, }\StringTok{"CANNABIS\_EVR.auto"}\NormalTok{)}
+
+
+\CommentTok{\# All{-}frequency}
+
+\NormalTok{file\_list }\OtherTok{\textless{}{-}} \FunctionTok{list.files}\NormalTok{(}\AttributeTok{pattern =} \StringTok{"\^{}FREQ\_MA}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{d+}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.auto$"}\NormalTok{)}
+
+\NormalTok{data\_list }\OtherTok{\textless{}{-}} \FunctionTok{lapply}\NormalTok{(file\_list, }\ControlFlowTok{function}\NormalTok{(file) \{}
+\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(file, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  file\_num }\OtherTok{\textless{}{-}} \FunctionTok{sub}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{.auto"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, }\FunctionTok{basename}\NormalTok{(file))}
+\NormalTok{  df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{rename\_with}\NormalTok{(}\SpecialCharTok{\textasciitilde{}} \FunctionTok{paste0}\NormalTok{(}\StringTok{"pgs\_"}\NormalTok{, file\_num), }\StringTok{"score"}\NormalTok{)}
+  \FunctionTok{return}\NormalTok{(df)}
+\NormalTok{\})}
+
+\NormalTok{FREQ\_MA }\OtherTok{\textless{}{-}} \FunctionTok{Reduce}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x, y) }\FunctionTok{merge}\NormalTok{(x, y, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"FID"}\NormalTok{, }\StringTok{"IID"}\NormalTok{), }\AttributeTok{all =} \ConstantTok{TRUE}\NormalTok{), data\_list)}
+
+\NormalTok{FREQ\_MA }\OtherTok{\textless{}{-}}\NormalTok{ FREQ\_MA }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{FREQ\_MA\_pgs =} \FunctionTok{rowSums}\NormalTok{(}\FunctionTok{select}\NormalTok{(., }\FunctionTok{starts\_with}\NormalTok{(}\StringTok{"pgs\_FREQ\_MA"}\NormalTok{)), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(FID, IID, FREQ\_MA\_pgs)}
+
+\FunctionTok{fwrite}\NormalTok{(FREQ\_MA, }\StringTok{"FREQ\_MA.auto"}\NormalTok{)}
+
+
+\DocumentationTok{\#\# All{-}cannabis}
+
+\NormalTok{CANNABIS\_FACTOR }\OtherTok{\textless{}{-}} \FunctionTok{Reduce}\NormalTok{(}\ControlFlowTok{function}\NormalTok{(x, y) }\FunctionTok{merge}\NormalTok{(x, y, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"FID"}\NormalTok{, }\StringTok{"IID"}\NormalTok{), }\AttributeTok{all =} \ConstantTok{TRUE}\NormalTok{), data\_list)}
+
+\NormalTok{CANNABIS\_FACTOR }\OtherTok{\textless{}{-}}\NormalTok{ CANNABIS\_FACTOR }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{CANNABIS\_FACTOR\_pgs =} \FunctionTok{rowSums}\NormalTok{(}\FunctionTok{select}\NormalTok{(., }\FunctionTok{starts\_with}\NormalTok{(}\StringTok{"pgs\_CANNABIS\_FACTOR"}\NormalTok{)), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(FID, IID, CANNABIS\_FACTOR\_pgs)}
+
+\FunctionTok{fwrite}\NormalTok{(CANNABIS\_FACTOR, }\StringTok{"CANNABIS\_FACTOR.auto"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{evaluate-pgs-effects}{%
+\section{Evaluate PGS effects}\label{evaluate-pgs-effects}}
+
+Linking of PGS and phenotype files was performed by STR and analyses
+were done on the Uppmax HPC. We approached (Nagelkerke's) R2 difference
+between models with an without the PGSs using bootstrapping, using bca
+where possible. All continuous predictors and outcomes were
+standardised. For binary outcomes, logistic regression was used.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(data.table)}
+\FunctionTok{library}\NormalTok{(glue)}
+\FunctionTok{library}\NormalTok{(fmsb)}
+\FunctionTok{library}\NormalTok{(boot)}
+
+\NormalTok{pgs1 }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"freq\_ma\_stage\_linked.txt"}\NormalTok{)}
+\NormalTok{pgs2 }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"cannabis\_evr\_stage\_linked.txt"}\NormalTok{)}
+\NormalTok{pgs3 }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"cannabis\_factor\_stage\_linked.txt"}\NormalTok{)}
+\NormalTok{canpheno }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"canpheno.tsv"}\NormalTok{)}
+\NormalTok{drugspheno }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"drugspheno.tsv"}\NormalTok{)}
+\NormalTok{psychpheno }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"psychpheno.tsv"}\NormalTok{)}
+\NormalTok{covar }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"sex\_birthyear\_pcs.csv"}\NormalTok{)}
+
+\NormalTok{pheno }\OtherTok{\textless{}{-}}\NormalTok{ canpheno }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{inner\_join}\NormalTok{(covar, }\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"idSTR"}\OtherTok{=}\StringTok{"stage\_id"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{inner\_join}\NormalTok{(pgs1, }\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"idSTR"}\OtherTok{=}\StringTok{"stage\_id"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{inner\_join}\NormalTok{(pgs2, }\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"idSTR"}\OtherTok{=}\StringTok{"stage\_id"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{inner\_join}\NormalTok{(pgs3, }\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"idSTR"}\OtherTok{=}\StringTok{"stage\_id"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(drugspheno) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(psychpheno) }
+
+\CommentTok{\# Check sex and age distribution}
+
+\NormalTok{pheno }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(FREQ\_MA\_pgs)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(sex) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}\FunctionTok{n}\NormalTok{())}
+
+\NormalTok{pheno }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(FREQ\_MA\_pgs)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}\FunctionTok{range}\NormalTok{(birth\_y, }\AttributeTok{na.rm =}\NormalTok{ T))}
+
+\NormalTok{pheno }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(FREQ\_MA\_pgs)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{summarise}\NormalTok{(}\FunctionTok{mean}\NormalTok{(birth\_y, }\AttributeTok{na.rm =}\NormalTok{ T), }\FunctionTok{sd}\NormalTok{(birth\_y, }\AttributeTok{na.rm =}\NormalTok{ T))}
+
+\CommentTok{\# Find continuous variables to standardise}
+\NormalTok{is\_bin }\OtherTok{\textless{}{-}} \FunctionTok{map\_lgl}\NormalTok{(pheno, }\SpecialCharTok{\textasciitilde{}} \FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(.)) }\SpecialCharTok{\textless{}=} \DecValTok{3}\NormalTok{)}
+\NormalTok{traits\_bin }\OtherTok{\textless{}{-}} \FunctionTok{colnames}\NormalTok{(pheno)[is\_bin]}
+\NormalTok{traits\_con }\OtherTok{\textless{}{-}} \FunctionTok{colnames}\NormalTok{(pheno)[}\SpecialCharTok{!}\NormalTok{is\_bin]}
+\NormalTok{traits\_con }\OtherTok{\textless{}{-}}\NormalTok{ traits\_con[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{traits\_bin }\OtherTok{\textless{}{-}}\NormalTok{ traits\_bin[}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{]}
+
+\NormalTok{pheno }\OtherTok{\textless{}{-}}\NormalTok{ pheno }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{all\_of}\NormalTok{(traits\_con), }\SpecialCharTok{\textasciitilde{}} \FunctionTok{scale}\NormalTok{(.)))}
+
+\CommentTok{\# Regression functions}
+
+\NormalTok{evalpgs }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(trait, pgs) \{}
+\NormalTok{  f1 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{} \{pgs\} + sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+\NormalTok{  res }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(x }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(}\AttributeTok{data =}\NormalTok{ pheno, f1, }\AttributeTok{family =} \StringTok{"binomial"}\NormalTok{))}\SpecialCharTok{$}\NormalTok{coefficients}
+  \FunctionTok{data.frame}\NormalTok{(res, }\AttributeTok{parameter =} \FunctionTok{row.names}\NormalTok{(res))}
+\NormalTok{\}   }
+
+\NormalTok{evalpgs\_con }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(trait, pgs) \{}
+\NormalTok{  f1 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{} \{pgs\} + sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+\NormalTok{  res }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(x }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(}\AttributeTok{data =}\NormalTok{ pheno, f1))}\SpecialCharTok{$}\NormalTok{coefficients}
+  \FunctionTok{data.frame}\NormalTok{(res, }\AttributeTok{parameter =} \FunctionTok{row.names}\NormalTok{(res))}
+\NormalTok{\} }
+
+\CommentTok{\# R2 functions}
+
+\DocumentationTok{\#\#\#\# R2 with bootstrapping to get SE}
+\DocumentationTok{\#\#\#\#\# Binary}
+
+\NormalTok{evalpgsR2\_bin\_boot }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(trait, pgs, }\AttributeTok{data =}\NormalTok{ pheno,}
+                               \AttributeTok{n\_boot =} \DecValTok{1000}\NormalTok{, }\AttributeTok{seed =} \ConstantTok{NULL}\NormalTok{,}
+                               \AttributeTok{parallel =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{n\_cores =} \FunctionTok{max}\NormalTok{(}\DecValTok{1}\NormalTok{, parallel}\SpecialCharTok{::}\FunctionTok{detectCores}\NormalTok{() }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)) \{}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(seed)) }\FunctionTok{set.seed}\NormalTok{(seed)}
+
+\NormalTok{  f1 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{} \{pgs\} + sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+\NormalTok{  f2 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{}          sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+
+  \CommentTok{\# point estimate}
+\NormalTok{  fit1 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(f1, }\AttributeTok{data =}\NormalTok{ data, }\AttributeTok{family =} \FunctionTok{binomial}\NormalTok{())}
+\NormalTok{  fit2 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(f2, }\AttributeTok{data =}\NormalTok{ data, }\AttributeTok{family =} \FunctionTok{binomial}\NormalTok{())}
+\NormalTok{  delta\_r2\_hat }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(fmsb}\SpecialCharTok{::}\FunctionTok{NagelkerkeR2}\NormalTok{(fit1)}\SpecialCharTok{$}\NormalTok{R2 }\SpecialCharTok{{-}}\NormalTok{ fmsb}\SpecialCharTok{::}\FunctionTok{NagelkerkeR2}\NormalTok{(fit2)}\SpecialCharTok{$}\NormalTok{R2)}
+
+  \CommentTok{\# bootstrap statistic}
+\NormalTok{  stat\_fn }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, idx) \{}
+\NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ d[idx, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    f1b }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(f1, }\AttributeTok{data =}\NormalTok{ d, }\AttributeTok{family =} \FunctionTok{binomial}\NormalTok{())}
+\NormalTok{    f2b }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(f2, }\AttributeTok{data =}\NormalTok{ d, }\AttributeTok{family =} \FunctionTok{binomial}\NormalTok{())}
+    \FunctionTok{as.numeric}\NormalTok{(fmsb}\SpecialCharTok{::}\FunctionTok{NagelkerkeR2}\NormalTok{(f1b)}\SpecialCharTok{$}\NormalTok{R2 }\SpecialCharTok{{-}}\NormalTok{ fmsb}\SpecialCharTok{::}\FunctionTok{NagelkerkeR2}\NormalTok{(f2b)}\SpecialCharTok{$}\NormalTok{R2)}
+\NormalTok{  \}}
+
+\NormalTok{  b }\OtherTok{\textless{}{-}}\NormalTok{ boot}\SpecialCharTok{::}\FunctionTok{boot}\NormalTok{(}
+    \AttributeTok{data =}\NormalTok{ data,}
+    \AttributeTok{statistic =}\NormalTok{ stat\_fn,}
+    \AttributeTok{R =}\NormalTok{ n\_boot,}
+    \AttributeTok{parallel =} \ControlFlowTok{if}\NormalTok{ (parallel) }\StringTok{"multicore"} \ControlFlowTok{else} \StringTok{"no"}\NormalTok{,}
+    \AttributeTok{ncpus =} \ControlFlowTok{if}\NormalTok{ (parallel) n\_cores }\ControlFlowTok{else} \DecValTok{1}
+\NormalTok{  )}
+
+\NormalTok{  boots }\OtherTok{\textless{}{-}}\NormalTok{ b}\SpecialCharTok{$}\NormalTok{t[, }\DecValTok{1}\NormalTok{]}
+\NormalTok{  boots }\OtherTok{\textless{}{-}}\NormalTok{ boots[}\FunctionTok{is.finite}\NormalTok{(boots)]}
+\NormalTok{  se }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{sd}\NormalTok{(boots)}
+
+  \CommentTok{\# BCa CI}
+\NormalTok{  bca\_obj }\OtherTok{\textless{}{-}} \FunctionTok{try}\NormalTok{(boot}\SpecialCharTok{::}\FunctionTok{boot.ci}\NormalTok{(b, }\AttributeTok{type =} \StringTok{"bca"}\NormalTok{), }\AttributeTok{silent =} \ConstantTok{TRUE}\NormalTok{)}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{inherits}\NormalTok{(b, }\StringTok{"try{-}error"}\NormalTok{) }\SpecialCharTok{||} \FunctionTok{is.null}\NormalTok{(bca\_obj}\SpecialCharTok{$}\NormalTok{bca)) \{ }\CommentTok{\# can happen in the leave{-}one{-}out jackknife step (boot.ci)}
+\NormalTok{    ci }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{quantile}\NormalTok{(boots, }\AttributeTok{probs =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.025}\NormalTok{, }\FloatTok{0.975}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# not bias{-}adjusted as bca, but still asymmetrical CI}
+\NormalTok{    ci\_low  }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(ci[}\DecValTok{1}\NormalTok{]); ci\_high }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(ci[}\DecValTok{2}\NormalTok{])}
+\NormalTok{  \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{    ci\_low  }\OtherTok{\textless{}{-}}\NormalTok{ bca\_obj}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{] }\CommentTok{\# this is bias{-}adjusted}
+\NormalTok{    ci\_high }\OtherTok{\textless{}{-}}\NormalTok{ bca\_obj}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
+\NormalTok{  \}}
+
+  \CommentTok{\# bootstrap p{-}value for H0: ΔR² = 0, one{-}sided (ΔR² \textgreater{} 0)}
+\NormalTok{  B }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(boots)}
+\NormalTok{  p\_boot }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{sum}\NormalTok{(boots }\SpecialCharTok{\textless{}=} \DecValTok{0}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (B }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}
+
+  \FunctionTok{tibble}\NormalTok{(}
+    \AttributeTok{pgs       =}\NormalTok{ pgs,}
+    \AttributeTok{R2        =}\NormalTok{ delta\_r2\_hat,}
+    \AttributeTok{se        =}\NormalTok{ se,}
+    \AttributeTok{ci95\_low  =}\NormalTok{ ci\_low,}
+    \AttributeTok{ci95\_high =}\NormalTok{ ci\_high,}
+    \AttributeTok{P\_R2      =}\NormalTok{ p\_boot      }\CommentTok{\# from same bootstrap as CI}
+\NormalTok{  )}
+\NormalTok{\}}
+
+\DocumentationTok{\#\#\#\#\# Continuous }
+
+\NormalTok{evalpgsR2\_con\_boot }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(trait, pgs, }\AttributeTok{data =}\NormalTok{ pheno,}
+                               \AttributeTok{n\_boot =} \DecValTok{1000}\NormalTok{, }\AttributeTok{seed =} \ConstantTok{NULL}\NormalTok{,}
+                               \AttributeTok{parallel =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{n\_cores =} \FunctionTok{max}\NormalTok{(}\DecValTok{1}\NormalTok{, parallel}\SpecialCharTok{::}\FunctionTok{detectCores}\NormalTok{() }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{)) \{}
+  \ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(seed)) }\FunctionTok{set.seed}\NormalTok{(seed)}
+
+\NormalTok{  f1 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{} \{pgs\} + sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+\NormalTok{  f2 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{} sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+
+  \CommentTok{\# point estimate}
+\NormalTok{  fit1 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(f1, }\AttributeTok{data =}\NormalTok{ data)}
+\NormalTok{  fit2 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(f2, }\AttributeTok{data =}\NormalTok{ data)}
+\NormalTok{  delta\_r2\_hat }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(fit1)}\SpecialCharTok{$}\NormalTok{r.squared }\SpecialCharTok{{-}} \FunctionTok{summary}\NormalTok{(fit2)}\SpecialCharTok{$}\NormalTok{r.squared}
+
+  \CommentTok{\# bootstrap statistic}
+\NormalTok{  stat\_fn }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, idx) \{}
+\NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ d[idx, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    f1b }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(f1, }\AttributeTok{data =}\NormalTok{ d)}
+\NormalTok{    f2b }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(f2, }\AttributeTok{data =}\NormalTok{ d)}
+    \FunctionTok{summary}\NormalTok{(f1b)}\SpecialCharTok{$}\NormalTok{r.squared }\SpecialCharTok{{-}} \FunctionTok{summary}\NormalTok{(f2b)}\SpecialCharTok{$}\NormalTok{r.squared}
+\NormalTok{  \}}
+
+\NormalTok{  b }\OtherTok{\textless{}{-}}\NormalTok{ boot}\SpecialCharTok{::}\FunctionTok{boot}\NormalTok{(}
+    \AttributeTok{data =}\NormalTok{ data,}
+    \AttributeTok{statistic =}\NormalTok{ stat\_fn,}
+    \AttributeTok{R =}\NormalTok{ n\_boot,}
+    \AttributeTok{parallel =} \ControlFlowTok{if}\NormalTok{ (parallel) }\StringTok{"multicore"} \ControlFlowTok{else} \StringTok{"no"}\NormalTok{,}
+    \AttributeTok{ncpus =} \ControlFlowTok{if}\NormalTok{ (parallel) n\_cores }\ControlFlowTok{else} \DecValTok{1}
+\NormalTok{  )}
+
+\NormalTok{  boots }\OtherTok{\textless{}{-}}\NormalTok{ b}\SpecialCharTok{$}\NormalTok{t[, }\DecValTok{1}\NormalTok{]}
+\NormalTok{  boots }\OtherTok{\textless{}{-}}\NormalTok{ boots[}\FunctionTok{is.finite}\NormalTok{(boots)]}
+\NormalTok{  se }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{sd}\NormalTok{(boots)}
+
+  \CommentTok{\# BCa CI}
+\NormalTok{  bca\_obj }\OtherTok{\textless{}{-}} \FunctionTok{try}\NormalTok{(boot}\SpecialCharTok{::}\FunctionTok{boot.ci}\NormalTok{(b, }\AttributeTok{type =} \StringTok{"bca"}\NormalTok{), }\AttributeTok{silent =} \ConstantTok{TRUE}\NormalTok{)}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{inherits}\NormalTok{(bca\_obj, }\StringTok{"try{-}error"}\NormalTok{) }\SpecialCharTok{||} \FunctionTok{is.null}\NormalTok{(bca\_obj}\SpecialCharTok{$}\NormalTok{bca)) \{}
+\NormalTok{    ci }\OtherTok{\textless{}{-}}\NormalTok{ stats}\SpecialCharTok{::}\FunctionTok{quantile}\NormalTok{(boots, }\AttributeTok{probs =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.025}\NormalTok{, }\FloatTok{0.975}\NormalTok{), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{    ci\_low  }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(ci[}\DecValTok{1}\NormalTok{]); ci\_high }\OtherTok{\textless{}{-}} \FunctionTok{unname}\NormalTok{(ci[}\DecValTok{2}\NormalTok{])}
+\NormalTok{  \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{    ci\_low  }\OtherTok{\textless{}{-}}\NormalTok{ bca\_obj}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{4}\NormalTok{]}
+\NormalTok{    ci\_high }\OtherTok{\textless{}{-}}\NormalTok{ bca\_obj}\SpecialCharTok{$}\NormalTok{bca[}\DecValTok{5}\NormalTok{]}
+\NormalTok{  \}}
+
+  \CommentTok{\# bootstrap p{-}value for H0: ΔR² = 0, one{-}sided (ΔR² \textgreater{} 0)}
+\NormalTok{  B }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(boots)}
+\NormalTok{  p\_boot }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{sum}\NormalTok{(boots }\SpecialCharTok{\textless{}=} \DecValTok{0}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{) }\SpecialCharTok{/}\NormalTok{ (B }\SpecialCharTok{+} \DecValTok{1}\NormalTok{)}
+
+  \FunctionTok{tibble}\NormalTok{(}
+    \AttributeTok{pgs       =}\NormalTok{ pgs,}
+    \AttributeTok{R2        =}\NormalTok{ delta\_r2\_hat,}
+    \AttributeTok{se        =}\NormalTok{ se,}
+    \AttributeTok{ci95\_low  =}\NormalTok{ ci\_low,}
+    \AttributeTok{ci95\_high =}\NormalTok{ ci\_high,}
+    \AttributeTok{P\_R2      =}\NormalTok{ p\_boot}
+\NormalTok{  )}
+\NormalTok{\}}
+
+
+
+\CommentTok{\# Trait combinations }
+
+\NormalTok{traits\_con }\OtherTok{\textless{}{-}}\NormalTok{ traits\_con[}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, }\DecValTok{28}\NormalTok{,}\DecValTok{29}\NormalTok{)]}
+\NormalTok{pgs }\OtherTok{\textless{}{-}} \FunctionTok{colnames}\NormalTok{(pheno)[}\FunctionTok{c}\NormalTok{(}\DecValTok{28}\SpecialCharTok{:}\DecValTok{30}\NormalTok{)]}
+\NormalTok{combos\_bin }\OtherTok{\textless{}{-}} \FunctionTok{crossing}\NormalTok{(pgs, traits\_bin)}
+\NormalTok{combos\_con }\OtherTok{\textless{}{-}} \FunctionTok{crossing}\NormalTok{(pgs, traits\_con)}
+
+\CommentTok{\# Running the analyses}
+
+\NormalTok{results\_bin }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_bin}\SpecialCharTok{$}\NormalTok{traits\_bin, combos\_bin}\SpecialCharTok{$}\NormalTok{pgs, evalpgs)}
+\NormalTok{results\_r2\_bin }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_bin}\SpecialCharTok{$}\NormalTok{traits\_bin, combos\_bin}\SpecialCharTok{$}\NormalTok{pgs, evalpgsR2\_bin)}
+\NormalTok{results\_r2\_bin }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_bin}\SpecialCharTok{$}\NormalTok{traits\_bin, combos\_bin}\SpecialCharTok{$}\NormalTok{pgs, evalpgsR2\_bin\_boot, }\AttributeTok{n\_boot =} \DecValTok{2000}\NormalTok{, }\AttributeTok{seed =} \DecValTok{42}\NormalTok{)}
+\FunctionTok{saveRDS}\NormalTok{(results\_r2\_bin, }\StringTok{"results\_r2\_bin.RDS"}\NormalTok{)}
+
+\NormalTok{results\_con }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_con}\SpecialCharTok{$}\NormalTok{traits\_con, combos\_con}\SpecialCharTok{$}\NormalTok{pgs, evalpgs\_con)}
+\NormalTok{results\_r2\_con }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_con}\SpecialCharTok{$}\NormalTok{traits\_con, combos\_con}\SpecialCharTok{$}\NormalTok{pgs, evalpgsR2\_con)}
+\NormalTok{results\_r2\_con }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_con}\SpecialCharTok{$}\NormalTok{traits\_con, combos\_con}\SpecialCharTok{$}\NormalTok{pgs, evalpgsR2\_con\_boot, }\AttributeTok{n\_boot =} \DecValTok{2000}\NormalTok{, }\AttributeTok{seed =} \DecValTok{42}\NormalTok{)}
+\FunctionTok{saveRDS}\NormalTok{(results\_r2\_con, }\StringTok{"results\_r2\_con.RDS"}\NormalTok{)}
+
+\CommentTok{\# Munging results}
+
+\FunctionTok{names}\NormalTok{(results\_bin) }\OtherTok{\textless{}{-}}\NormalTok{ combos\_bin}\SpecialCharTok{$}\NormalTok{traits\_bin}
+\FunctionTok{names}\NormalTok{(results\_con) }\OtherTok{\textless{}{-}}\NormalTok{ combos\_con}\SpecialCharTok{$}\NormalTok{traits\_con}
+\FunctionTok{names}\NormalTok{(results\_r2\_bin) }\OtherTok{\textless{}{-}}\NormalTok{ combos\_bin}\SpecialCharTok{$}\NormalTok{traits\_bin}
+\FunctionTok{names}\NormalTok{(results\_r2\_con) }\OtherTok{\textless{}{-}}\NormalTok{ combos\_con}\SpecialCharTok{$}\NormalTok{traits\_con}
+
+\NormalTok{results\_bin\_df }\OtherTok{\textless{}{-}} \FunctionTok{rbindlist}\NormalTok{(results\_bin, }\AttributeTok{idcol =}\NormalTok{ T)}
+\NormalTok{results\_con\_df }\OtherTok{\textless{}{-}} \FunctionTok{rbindlist}\NormalTok{(results\_con, }\AttributeTok{idcol =}\NormalTok{ T)}
+\NormalTok{results\_r2\_bin\_df }\OtherTok{\textless{}{-}} \FunctionTok{rbindlist}\NormalTok{(results\_r2\_bin, }\AttributeTok{idcol =}\NormalTok{ T)}
+\NormalTok{results\_r2\_con\_df }\OtherTok{\textless{}{-}} \FunctionTok{rbindlist}\NormalTok{(results\_r2\_con, }\AttributeTok{idcol =}\NormalTok{ T)}
+
+\FunctionTok{colnames}\NormalTok{(results\_bin\_df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"outcome"}\NormalTok{, }\StringTok{"b"}\NormalTok{, }\StringTok{"SE"}\NormalTok{, }\StringTok{"teststatistic"}\NormalTok{, }\StringTok{"p"}\NormalTok{, }\StringTok{"predictor"}\NormalTok{)}
+\FunctionTok{colnames}\NormalTok{(results\_con\_df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"outcome"}\NormalTok{, }\StringTok{"b"}\NormalTok{, }\StringTok{"SE"}\NormalTok{, }\StringTok{"teststatistic"}\NormalTok{, }\StringTok{"p"}\NormalTok{, }\StringTok{"predictor"}\NormalTok{)}
+
+\FunctionTok{colnames}\NormalTok{(results\_r2\_bin\_df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"outcome"}\NormalTok{, }\StringTok{"predictor"}\NormalTok{, }\StringTok{"R2"}\NormalTok{, }\StringTok{"R2\_se"}\NormalTok{, }\StringTok{"R2\_ci95\_low"}\NormalTok{, }\StringTok{"R2\_ci95\_high"}\NormalTok{,}\StringTok{"R2\_p"}\NormalTok{)}
+\FunctionTok{colnames}\NormalTok{(results\_r2\_con\_df) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"outcome"}\NormalTok{, }\StringTok{"predictor"}\NormalTok{, }\StringTok{"R2"}\NormalTok{, }\StringTok{"R2\_se"}\NormalTok{, }\StringTok{"R2\_ci95\_low"}\NormalTok{, }\StringTok{"R2\_ci95\_high"}\NormalTok{,}\StringTok{"R2\_p"}\NormalTok{)}
+
+
+\NormalTok{results\_bin\_df }\OtherTok{\textless{}{-}}\NormalTok{ results\_bin\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{inner\_join}\NormalTok{(results\_r2\_bin\_df)}
+\NormalTok{results\_con\_df }\OtherTok{\textless{}{-}}\NormalTok{ results\_con\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{inner\_join}\NormalTok{(results\_r2\_con\_df)}
+
+\FunctionTok{fwrite}\NormalTok{(}\FunctionTok{rbind}\NormalTok{(results\_bin\_df, results\_con\_df, }\AttributeTok{fill =}\NormalTok{ T), }\StringTok{"prs\_results.tsv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Below is a small check to see how often BCa is used and how often just
+percentiles for the derivation of the CI of the R2.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Binary}
+
+\NormalTok{diag\_jackknife\_bin }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(trait, pgs, }\AttributeTok{data =}\NormalTok{ pheno) \{}
+\NormalTok{  f1 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}
+\NormalTok{    trait, }\StringTok{"\textasciitilde{}"}\NormalTok{, pgs,}
+    \StringTok{"+ sex + birth\_y"}\NormalTok{,}
+    \StringTok{"+ PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU"}\NormalTok{,}
+    \StringTok{"+ PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}
+\NormalTok{  ))}
+\NormalTok{  f2 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}
+\NormalTok{    trait, }\StringTok{"\textasciitilde{}"}\NormalTok{,}
+    \StringTok{"sex + birth\_y"}\NormalTok{,}
+    \StringTok{"+ PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU"}\NormalTok{,}
+    \StringTok{"+ PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}
+\NormalTok{  ))}
+
+\NormalTok{  n  }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(data)}
+\NormalTok{  ok }\OtherTok{\textless{}{-}} \FunctionTok{logical}\NormalTok{(n)}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(n)) \{}
+\NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ data[}\SpecialCharTok{{-}}\NormalTok{i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    out }\OtherTok{\textless{}{-}} \FunctionTok{try}\NormalTok{(\{}
+\NormalTok{      m1 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(f1, }\AttributeTok{data =}\NormalTok{ d, }\AttributeTok{family =} \FunctionTok{binomial}\NormalTok{())}
+\NormalTok{      m0 }\OtherTok{\textless{}{-}} \FunctionTok{glm}\NormalTok{(f2, }\AttributeTok{data =}\NormalTok{ d, }\AttributeTok{family =} \FunctionTok{binomial}\NormalTok{())}
+\NormalTok{      fmsb}\SpecialCharTok{::}\FunctionTok{NagelkerkeR2}\NormalTok{(m1)}\SpecialCharTok{$}\NormalTok{R2 }\SpecialCharTok{{-}}\NormalTok{ fmsb}\SpecialCharTok{::}\FunctionTok{NagelkerkeR2}\NormalTok{(m0)}\SpecialCharTok{$}\NormalTok{R2}
+\NormalTok{    \}, }\AttributeTok{silent =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{    ok[i] }\OtherTok{\textless{}{-}} \SpecialCharTok{!}\NormalTok{(}\FunctionTok{inherits}\NormalTok{(out, }\StringTok{"try{-}error"}\NormalTok{) }\SpecialCharTok{||} \SpecialCharTok{!}\FunctionTok{is.finite}\NormalTok{(out))}
+\NormalTok{  \}}
+
+  \FunctionTok{data.frame}\NormalTok{(}
+    \AttributeTok{trait =}\NormalTok{ trait,}
+    \AttributeTok{pgs   =}\NormalTok{ pgs,}
+    \AttributeTok{jackknife\_ok     =} \FunctionTok{all}\NormalTok{(ok),}
+    \AttributeTok{jackknife\_n\_fail =} \FunctionTok{sum}\NormalTok{(}\SpecialCharTok{!}\NormalTok{ok)}
+\NormalTok{  )}
+\NormalTok{\}}
+
+\CommentTok{\# Continuous }
+
+\NormalTok{diag\_jackknife\_con }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(trait, pgs, }\AttributeTok{data =}\NormalTok{ pheno) \{}
+\NormalTok{  f1 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{} \{pgs\} + sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+\NormalTok{  f2 }\OtherTok{\textless{}{-}} \FunctionTok{as.formula}\NormalTok{(}\FunctionTok{glue}\NormalTok{(}\StringTok{"\{trait\} \textasciitilde{}          sex + birth\_y + PC1\_EU + PC2\_EU + PC3\_EU + PC4\_EU + PC5\_EU + PC6\_EU + PC7\_EU + PC8\_EU + PC9\_EU + PC10\_EU"}\NormalTok{))}
+
+\NormalTok{  n  }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(data)}
+\NormalTok{  ok }\OtherTok{\textless{}{-}} \FunctionTok{logical}\NormalTok{(n)}
+
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(n)) \{}
+\NormalTok{    d }\OtherTok{\textless{}{-}}\NormalTok{ data[}\SpecialCharTok{{-}}\NormalTok{i, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{    out }\OtherTok{\textless{}{-}} \FunctionTok{try}\NormalTok{(\{}
+\NormalTok{      m1 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(f1, }\AttributeTok{data =}\NormalTok{ d)}
+\NormalTok{      m0 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(f2, }\AttributeTok{data =}\NormalTok{ d)}
+      \FunctionTok{summary}\NormalTok{(m1)}\SpecialCharTok{$}\NormalTok{r.squared }\SpecialCharTok{{-}} \FunctionTok{summary}\NormalTok{(m0)}\SpecialCharTok{$}\NormalTok{r.squared}
+\NormalTok{    \}, }\AttributeTok{silent =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{    ok[i] }\OtherTok{\textless{}{-}} \SpecialCharTok{!}\NormalTok{(}\FunctionTok{inherits}\NormalTok{(out, }\StringTok{"try{-}error"}\NormalTok{) }\SpecialCharTok{||} \SpecialCharTok{!}\FunctionTok{is.finite}\NormalTok{(out))}
+\NormalTok{  \}}
+
+\NormalTok{  tibble}\SpecialCharTok{::}\FunctionTok{tibble}\NormalTok{(}
+    \AttributeTok{trait            =}\NormalTok{ trait,}
+    \AttributeTok{pgs              =}\NormalTok{ pgs,}
+    \AttributeTok{jackknife\_ok     =} \FunctionTok{all}\NormalTok{(ok),}
+    \AttributeTok{jackknife\_n\_fail =} \FunctionTok{sum}\NormalTok{(}\SpecialCharTok{!}\NormalTok{ok)}
+\NormalTok{  )}
+\NormalTok{\}}
+
+\NormalTok{jackknife\_bin }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_bin}\SpecialCharTok{$}\NormalTok{traits\_bin, combos\_bin}\SpecialCharTok{$}\NormalTok{pgs, diag\_jackknife\_bin)}
+\NormalTok{jackknife\_con }\OtherTok{\textless{}{-}} \FunctionTok{map2}\NormalTok{(combos\_con}\SpecialCharTok{$}\NormalTok{traits\_con, combos\_con}\SpecialCharTok{$}\NormalTok{pgs, diag\_jackknife\_con)}
+
+\FunctionTok{fwrite}\NormalTok{(}\FunctionTok{rbindlist}\NormalTok{(jackknife\_bin), }\StringTok{"jackknife\_diag\_bin.tsv"}\NormalTok{)}
+\FunctionTok{fwrite}\NormalTok{(}\FunctionTok{rbindlist}\NormalTok{(jackknife\_con), }\StringTok{"jackknife\_diag\_con.tsv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{figure-4-pgs-results}{%
+\section{Figure 4: pgs results}\label{figure-4-pgs-results}}
+
+Next, we plot results, first inspecting the regression weights:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(readxl)}
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(data.table)}
+\FunctionTok{library}\NormalTok{(scales)}
+\FunctionTok{library}\NormalTok{(patchwork)}
+
+\NormalTok{res }\OtherTok{\textless{}{-}} \FunctionTok{fread}\NormalTok{(}\StringTok{"results/prs/prs\_results.tsv"}\NormalTok{)}
+\NormalTok{labels }\OtherTok{\textless{}{-}} \FunctionTok{read\_excel}\NormalTok{(}\StringTok{"scripts/prs/outcome\_labels.xlsx"}\NormalTok{)}
+
+\NormalTok{res }\OtherTok{\textless{}{-}}\NormalTok{ res }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{left\_join}\NormalTok{(labels, }\AttributeTok{by=}\FunctionTok{c}\NormalTok{(}\StringTok{"outcome"}\OtherTok{=}\StringTok{"name"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(}\SpecialCharTok{!}\NormalTok{(item)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{filter}\NormalTok{(predictor }\SpecialCharTok{!=} \StringTok{"(Intercept)"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{predictor =}\NormalTok{ dplyr}\SpecialCharTok{::}\FunctionTok{recode}\NormalTok{(predictor, }\StringTok{"CANNABIS\_EVR\_prs"} \OtherTok{=} \StringTok{"Ever use"}\NormalTok{,}
+                            \StringTok{"CANNABIS\_FACTOR\_prs"} \OtherTok{=} \StringTok{"All{-}cannabis"}\NormalTok{,}
+                            \StringTok{"FREQ\_MA\_prs"} \OtherTok{=} \StringTok{"All{-}frequency"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{pgs =}\NormalTok{ predictor) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(pgs) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{p\_fdr =} \FunctionTok{p.adjust}\NormalTok{(p, }\AttributeTok{method =} \StringTok{"BH"}\NormalTok{),         }
+         \AttributeTok{p\_fdr\_bin =} \FunctionTok{ifelse}\NormalTok{(p\_fdr }\SpecialCharTok{\textless{}}\NormalTok{ .}\DecValTok{05}\NormalTok{, }\StringTok{"*"}\NormalTok{, }\StringTok{""}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{pgs =} \FunctionTok{factor}\NormalTok{(pgs, }\AttributeTok{levels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Ever use"}\NormalTok{, }\StringTok{"All{-}frequency"}\NormalTok{, }\StringTok{"All{-}cannabis"}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(outcome) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{maxval =} \FunctionTok{max}\NormalTok{(b)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{ungroup}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(maxval)}
+
+\NormalTok{res }\OtherTok{\textless{}{-}}\NormalTok{ res }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{label =} \FunctionTok{factor}\NormalTok{(.}\SpecialCharTok{$}\NormalTok{label, }\AttributeTok{levels =} \FunctionTok{unique}\NormalTok{(res}\SpecialCharTok{$}\NormalTok{label))) }
+
+
+\NormalTok{plt\_com }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{subset}\NormalTok{(res, pgs }\SpecialCharTok{==} \StringTok{"Ever use"} \SpecialCharTok{|}\NormalTok{ pgs }\SpecialCharTok{==} \StringTok{"All{-}frequency"} \SpecialCharTok{|}\NormalTok{ pgs }\SpecialCharTok{==} \StringTok{"All{-}cannabis"}\NormalTok{), }
+                  \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ b, }\AttributeTok{y =} \FunctionTok{fct\_rev}\NormalTok{(label), }\AttributeTok{color =}\NormalTok{ pgs, }\AttributeTok{shape =}\NormalTok{ p\_fdr\_bin, }\AttributeTok{fill =}\NormalTok{ p\_fdr\_bin)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_pointrange}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{xmin =}\NormalTok{ b }\SpecialCharTok{{-}} \FloatTok{1.96} \SpecialCharTok{*} \FunctionTok{as.numeric}\NormalTok{(SE), }\AttributeTok{xmax =}\NormalTok{ b }\SpecialCharTok{+} \FloatTok{1.96} \SpecialCharTok{*} \FunctionTok{as.numeric}\NormalTok{(SE)), }
+                  \AttributeTok{position =} \FunctionTok{position\_dodge}\NormalTok{(}\AttributeTok{width =} \SpecialCharTok{{-}}\FloatTok{0.65}\NormalTok{),}
+                  \AttributeTok{size =} \FloatTok{0.3}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.15}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_grid}\NormalTok{(Category }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{scales =} \StringTok{"free"}\NormalTok{, }\AttributeTok{space =} \StringTok{"free\_y"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{theme\_classic}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{strip.text =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{8}\NormalTok{),}
+        \AttributeTok{strip.background =} \FunctionTok{element\_rect}\NormalTok{(}\AttributeTok{fill =} \StringTok{"lightgrey"}\NormalTok{, }\AttributeTok{color =} \StringTok{"black"}\NormalTok{),}
+        \AttributeTok{panel.border =} \FunctionTok{element\_rect}\NormalTok{(}\AttributeTok{color =} \StringTok{"black"}\NormalTok{, }\AttributeTok{fill =} \ConstantTok{NA}\NormalTok{), }
+        \AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{10}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.5}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{scale\_colour\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"\#66a61e"}\NormalTok{, }\StringTok{"\#7570b3"}\NormalTok{, }\StringTok{"\#d95f02"}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{xlab}\NormalTok{(}\StringTok{"Regression weight"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{scale\_shape\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{19}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"white"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{guides}\NormalTok{(}\AttributeTok{shape =} \StringTok{"none"}\NormalTok{, }\AttributeTok{fill =} \StringTok{"none"}\NormalTok{)}
+
+\NormalTok{plt\_com}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{PGS_codebook_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+and then with R2-values. We use Nagelkerke's R2 and the chi-square
+distribution p-value (LRT) for binary traits.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{res2 }\OtherTok{\textless{}{-}}\NormalTok{ res }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+      \AttributeTok{s =} \FunctionTok{ifelse}\NormalTok{(b }\SpecialCharTok{\textless{}} \DecValTok{0}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\DecValTok{1}\NormalTok{),}
+      \AttributeTok{R2 =}\NormalTok{ s }\SpecialCharTok{*}\NormalTok{ R2,}
+      \AttributeTok{lo =}\NormalTok{ s }\SpecialCharTok{*}\NormalTok{ R2\_ci95\_high,}
+      \AttributeTok{hi =}\NormalTok{ s }\SpecialCharTok{*}\NormalTok{ R2\_ci95\_low,}
+      \AttributeTok{R2\_ci95\_low  =} \FunctionTok{pmin}\NormalTok{(lo, hi),}
+      \AttributeTok{R2\_ci95\_high =} \FunctionTok{pmax}\NormalTok{(lo, hi)}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{s, }\SpecialCharTok{{-}}\NormalTok{lo, }\SpecialCharTok{{-}}\NormalTok{hi) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{R2 =}\NormalTok{ R2}\SpecialCharTok{*}\DecValTok{100}\NormalTok{, }\AttributeTok{R2\_se =}\NormalTok{ R2\_se }\SpecialCharTok{*}\DecValTok{100}\NormalTok{,}
+         \AttributeTok{R2\_ci95\_low =}\NormalTok{ R2\_ci95\_low }\SpecialCharTok{*} \DecValTok{100}\NormalTok{, }
+         \AttributeTok{R2\_ci95\_high =}\NormalTok{ R2\_ci95\_high }\SpecialCharTok{*}\DecValTok{100}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Category) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{ypos =} \FunctionTok{dense\_rank}\NormalTok{(}\FunctionTok{desc}\NormalTok{(label)),   }\CommentTok{\# ranks within each Category, reversed}
+    \AttributeTok{ypos =} \FunctionTok{case\_when}\NormalTok{(}
+\NormalTok{      pgs }\SpecialCharTok{==} \StringTok{"Ever use"}     \SpecialCharTok{\textasciitilde{}}\NormalTok{ ypos }\SpecialCharTok{+} \FloatTok{0.27}\NormalTok{,}
+\NormalTok{      pgs }\SpecialCharTok{==} \StringTok{"All{-}cannabis"} \SpecialCharTok{\textasciitilde{}}\NormalTok{ ypos }\SpecialCharTok{{-}} \FloatTok{0.27}\NormalTok{,}
+      \ConstantTok{TRUE}                  \SpecialCharTok{\textasciitilde{}}\NormalTok{ ypos}
+\NormalTok{    )) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{N\_cases =} \FunctionTok{as.numeric}\NormalTok{(N\_cases),}
+    \AttributeTok{N\_controls =} \FunctionTok{as.numeric}\NormalTok{(N\_controls),}
+    \AttributeTok{N =} \FunctionTok{as.numeric}\NormalTok{(N),}
+    \AttributeTok{N\_eff =} \FunctionTok{ifelse}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(N\_cases),}
+                   \DecValTok{4} \SpecialCharTok{*}\NormalTok{ N\_cases }\SpecialCharTok{*}\NormalTok{ N\_controls }\SpecialCharTok{/}\NormalTok{ (N\_cases }\SpecialCharTok{+}\NormalTok{ N\_controls),}
+\NormalTok{                   N)}
+\NormalTok{  ) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(pgs) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{R2\_p\_fdr =} \FunctionTok{p.adjust}\NormalTok{(R2\_p, }\AttributeTok{method =} \StringTok{"BH"}\NormalTok{),         }
+         \AttributeTok{R2\_p\_fdr\_bin =} \FunctionTok{ifelse}\NormalTok{(p\_fdr }\SpecialCharTok{\textless{}}\NormalTok{ .}\DecValTok{05}\NormalTok{, }\StringTok{"*"}\NormalTok{, }\StringTok{""}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{direction =} \FunctionTok{ifelse}\NormalTok{(b}\SpecialCharTok{\textless{}}\DecValTok{0}\NormalTok{, }\StringTok{"{-}"}\NormalTok{, }\StringTok{" "}\NormalTok{))}
+
+\NormalTok{plt\_com }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{subset}\NormalTok{(res2, pgs }\SpecialCharTok{==} \StringTok{"Ever use"} \SpecialCharTok{|}\NormalTok{ pgs }\SpecialCharTok{==} \StringTok{"All{-}frequency"} \SpecialCharTok{|}\NormalTok{ pgs }\SpecialCharTok{==} \StringTok{"All{-}cannabis"}\NormalTok{), }
+                  \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ R2, }\AttributeTok{xmin =}\NormalTok{ R2\_ci95\_low, }\AttributeTok{xmax =}\NormalTok{ R2\_ci95\_high,}
+              \AttributeTok{y =} \FunctionTok{fct\_rev}\NormalTok{(label), }\AttributeTok{color =} \FunctionTok{fct\_rev}\NormalTok{(pgs),  }\AttributeTok{shape =}\NormalTok{ R2\_p\_fdr\_bin, }\AttributeTok{fill =}\NormalTok{ R2\_p\_fdr\_bin)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_pointrange}\NormalTok{(}\AttributeTok{position =} \FunctionTok{position\_dodge}\NormalTok{(}\AttributeTok{width =} \FloatTok{0.8}\NormalTok{), }\AttributeTok{size =} \FloatTok{0.4}\NormalTok{, }\AttributeTok{fatten =} \DecValTok{4}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =} \DecValTok{0}\NormalTok{, }\AttributeTok{size =} \FloatTok{0.15}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{facet\_grid}\NormalTok{(Category }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{scales =} \StringTok{"free"}\NormalTok{, }\AttributeTok{space =} \StringTok{"free\_y"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{coord\_cartesian}\NormalTok{(}\AttributeTok{xlim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{1.5}\NormalTok{, }\DecValTok{5}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_segment}\NormalTok{(}
+    \AttributeTok{data =} \FunctionTok{subset}\NormalTok{(res2, R2\_ci95\_high }\SpecialCharTok{\textgreater{}} \DecValTok{5}\NormalTok{),}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \DecValTok{4}\NormalTok{, }\AttributeTok{xend =} \FloatTok{5.25}\NormalTok{, }\AttributeTok{y =}\NormalTok{  ypos,}
+        \AttributeTok{color =} \FunctionTok{fct\_rev}\NormalTok{(pgs)),}
+    \CommentTok{\# pos = position\_dodge2(width = 1, reverse = FALSE),}
+    \AttributeTok{arrow =} \FunctionTok{arrow}\NormalTok{(}\AttributeTok{length =} \FunctionTok{unit}\NormalTok{(}\FloatTok{1.5}\NormalTok{, }\StringTok{"mm"}\NormalTok{), }\AttributeTok{type =} \StringTok{"closed"}\NormalTok{),}
+    \AttributeTok{show.legend =} \ConstantTok{FALSE}
+\NormalTok{  ) }\SpecialCharTok{+}
+    \FunctionTok{geom\_segment}\NormalTok{(}
+    \AttributeTok{data =} \FunctionTok{subset}\NormalTok{(res2, R2\_ci95\_low }\SpecialCharTok{\textless{}} \SpecialCharTok{{-}} \FloatTok{1.5}\NormalTok{),}
+    \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\AttributeTok{xend =} \SpecialCharTok{{-}}\FloatTok{1.75}\NormalTok{, }\AttributeTok{y =}\NormalTok{ ypos,}
+        \AttributeTok{color =}\NormalTok{ pgs),}
+    \AttributeTok{arrow =} \FunctionTok{arrow}\NormalTok{(}\AttributeTok{length =} \FunctionTok{unit}\NormalTok{(}\FloatTok{1.5}\NormalTok{, }\StringTok{"mm"}\NormalTok{), }\AttributeTok{type =} \StringTok{"closed"}\NormalTok{),}
+    \AttributeTok{show.legend =} \ConstantTok{FALSE}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{axis.text.y =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{axis.title.x =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{hjust =} \FloatTok{0.75}\NormalTok{),}
+        \AttributeTok{strip.text =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{\textquotesingle{}black\textquotesingle{}}\NormalTok{, }\AttributeTok{size =} \DecValTok{8}\NormalTok{),}
+        \AttributeTok{strip.background =} \FunctionTok{element\_rect}\NormalTok{(}\AttributeTok{fill =} \StringTok{"lightgrey"}\NormalTok{, }\AttributeTok{color =} \StringTok{"black"}\NormalTok{),}
+        \AttributeTok{panel.border =} \FunctionTok{element\_rect}\NormalTok{(}\AttributeTok{color =} \StringTok{"black"}\NormalTok{, }\AttributeTok{fill =} \ConstantTok{NA}\NormalTok{), }
+        \AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{10}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.5}\NormalTok{)}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{scale\_colour\_manual}\NormalTok{(}
+        \AttributeTok{name =} \StringTok{"Cannabis PGS"}\NormalTok{,}
+        \AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"Ever use"} \OtherTok{=} \StringTok{"\#66a61e"}\NormalTok{, }\StringTok{"All{-}frequency"} \OtherTok{=} \StringTok{"\#7570b3"}\NormalTok{, }\StringTok{"All{-}cannabis"} \OtherTok{=} \StringTok{"\#d95f02"}\NormalTok{),}
+        \AttributeTok{breaks =} \FunctionTok{c}\NormalTok{(}\StringTok{"Ever use"}\NormalTok{, }\StringTok{"All{-}frequency"}\NormalTok{, }\StringTok{"All{-}cannabis"}\NormalTok{) }
+\NormalTok{      ) }\SpecialCharTok{+}
+  \FunctionTok{xlab}\NormalTok{(}\FunctionTok{expression}\NormalTok{(}\FunctionTok{bold}\NormalTok{(}\StringTok{"\%R"}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))) }\SpecialCharTok{+}
+  \FunctionTok{scale\_shape\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{19}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{values =} \FunctionTok{c}\NormalTok{(}\StringTok{"white"}\NormalTok{, }\ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{guides}\NormalTok{(}\AttributeTok{shape =} \StringTok{"none"}\NormalTok{, }\AttributeTok{fill =} \StringTok{"none"}\NormalTok{)}
+
+
+\NormalTok{plt\_com\_N }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(}\FunctionTok{subset}\NormalTok{(res2, pgs }\SpecialCharTok{==} \StringTok{"Ever use"}\NormalTok{), }
+              \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \DecValTok{5}\NormalTok{, }\AttributeTok{y =} \FunctionTok{fct\_rev}\NormalTok{(label))) }\SpecialCharTok{+}  
+  \FunctionTok{facet\_grid}\NormalTok{(Category }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{scales =} \StringTok{"free"}\NormalTok{, }\AttributeTok{space =} \StringTok{"free\_y"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_text}\NormalTok{(}\FunctionTok{aes}\NormalTok{(}\AttributeTok{label =} \FunctionTok{comma}\NormalTok{(N\_eff)), }\AttributeTok{size =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{+} 
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{()) }\SpecialCharTok{+}
+  \FunctionTok{theme\_classic}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{axis.title.y =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{axis.text.x =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{axis.ticks.x =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{strip.text =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{strip.background =} \FunctionTok{element\_blank}\NormalTok{(),}
+        \AttributeTok{panel.border =} \FunctionTok{element\_rect}\NormalTok{(}\AttributeTok{color =} \StringTok{"black"}\NormalTok{, }\AttributeTok{fill =} \ConstantTok{NA}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{xlab}\NormalTok{(}\FunctionTok{expression}\NormalTok{(}\FunctionTok{bold}\NormalTok{(}\StringTok{"N\_eff"}\NormalTok{)))}
+
+
+\NormalTok{plt\_combi }\OtherTok{\textless{}{-}}\NormalTok{ plt\_com\_N }\SpecialCharTok{+}\NormalTok{ plt\_com }\SpecialCharTok{+} \FunctionTok{plot\_layout}\NormalTok{(}\AttributeTok{widths =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.2}\NormalTok{, }\FloatTok{0.8}\NormalTok{))}
+\NormalTok{plt\_combi}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{PGS_codebook_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggsave}\NormalTok{(}\StringTok{"results/prs/pgs\_res\_com\_R2.svg"}\NormalTok{, plt\_combi, }\AttributeTok{width =} \FloatTok{7.5}\NormalTok{, }\AttributeTok{height =} \FloatTok{7.5}\NormalTok{)}
+\FunctionTok{ggsave}\NormalTok{(}\StringTok{"results/prs/pgs\_res\_com\_R2.png"}\NormalTok{, plt\_combi, }\AttributeTok{width =} \FloatTok{7.5}\NormalTok{, }\AttributeTok{height =} \FloatTok{7.5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{supplementary-table-sx-full-pgs-results}{%
+\section{Supplementary Table Sx: full pgs
+results}\label{supplementary-table-sx-full-pgs-results}}
+
+For the supplement, we create a table with the full results. Here the
+first 20 rows are shown.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{restable }\OtherTok{\textless{}{-}}\NormalTok{ res2 }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{select}\NormalTok{(Category, pgs, label, b, SE, p, p\_fdr, R2, R2\_ci95\_low, R2\_ci95\_high, R2\_p, R2\_p\_fdr, N\_cases, N\_controls, N, N\_eff)}
+
+\FunctionTok{fwrite}\NormalTok{(restable, }\StringTok{"results/prs/pgs\_results\_table.csv"}\NormalTok{)}
+
+\FunctionTok{kable}\NormalTok{(}\FunctionTok{head}\NormalTok{(restable, }\AttributeTok{n=}\DecValTok{20}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0733}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0733}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.1623}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0576}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0524}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0524}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0524}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0576}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0628}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0681}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0524}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0524}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0419}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0576}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0314}}
+  >{\raggedleft\arraybackslash}p{(\columnwidth - 30\tabcolsep) * \real{0.0524}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+pgs
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+label
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+b
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+SE
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p\_fdr
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R2
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R2\_ci95\_low
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R2\_ci95\_high
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R2\_p
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R2\_p\_fdr
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N\_cases
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N\_controls
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+N\_eff
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Cannabis & Ever use & Age at first use & -0.0221628 & 0.0244606 &
+0.3650497 & 0.8562959 & -0.0506937 & -0.5089147 & -0.0002572 & 0.0004998
+& 0.0005000 & NA & NA & 4421 & 4421.000 \\
+Cannabis & All-cannabis & Age at first use & -0.0657957 & 0.0255592 &
+0.0101409 & 0.0143165 & -0.4076304 & -1.1217975 & -0.0349591 & 0.0004998
+& 0.0005000 & NA & NA & 4421 & 4421.000 \\
+Cannabis & All-frequency & Age at first use & -0.0386356 & 0.0251843 &
+0.1252128 & 0.1669505 & -0.1451816 & -0.6744737 & -0.0010196 & 0.0004998
+& 0.0005215 & NA & NA & 4421 & 4421.000 \\
+Cannabis & Ever use & Age at maximum use & -0.0227880 & 0.0266386 &
+0.3924690 & 0.8562959 & -0.0552500 & -0.5481004 & -0.0002207 & 0.0004998
+& 0.0005000 & NA & NA & 3693 & 3693.000 \\
+Cannabis & All-cannabis & Age at maximum use & -0.0518487 & 0.0281219 &
+0.0654649 & 0.0785579 & -0.2560900 & -0.9797610 & -0.0027599 & 0.0004998
+& 0.0005000 & NA & NA & 3693 & 3693.000 \\
+Cannabis & All-frequency & Age at maximum use & -0.0132612 & 0.0280748 &
+0.6367590 & 0.6367590 & -0.0168521 & -0.3988024 & -0.0000643 & 0.0004998
+& 0.0005215 & NA & NA & 3693 & 3693.000 \\
+Substance use & Ever use & Nicotine dependence & -0.0289839 & 0.0238210
+& 0.2238788 & 0.7675844 & -0.0882498 & -0.6134150 & -0.0001702 &
+0.0004998 & 0.0005000 & NA & NA & 5787 & 5787.000 \\
+Substance use & All-cannabis & Nicotine dependence & -0.0099442 &
+0.0250829 & 0.6918224 & 0.6918224 & -0.0093768 & -0.3330857 & -0.0000947
+& 0.0004998 & 0.0005000 & NA & NA & 5787 & 5787.000 \\
+Substance use & All-frequency & Nicotine dependence & 0.0205215 &
+0.0239302 & 0.3912626 & 0.4695152 & 0.0438573 & 0.0000743 & 0.4853716 &
+0.0004998 & 0.0005215 & NA & NA & 5787 & 5787.000 \\
+Cannabis & Ever use & Maximum cannabis use frequency & -0.0121015 &
+0.0294160 & 0.6808697 & 0.9633376 & -0.0155996 & -0.6351041 & -0.0001719
+& 0.0004998 & 0.0005000 & NA & NA & 3266 & 3266.000 \\
+Cannabis & All-cannabis & Maximum cannabis use frequency & 0.0365642 &
+0.0314627 & 0.2454381 & 0.2805006 & 0.1243491 & 0.0004620 & 1.0043507 &
+0.0004998 & 0.0005000 & NA & NA & 3266 & 3266.000 \\
+Cannabis & All-frequency & Maximum cannabis use frequency & 0.0227688 &
+0.0307721 & 0.4595143 & 0.5251591 & 0.0504448 & 0.0002040 & 0.6590620 &
+0.0004998 & 0.0005215 & NA & NA & 3266 & 3266.000 \\
+Mental health & Ever use & Impulsivity & 0.0166202 & 0.0119540 &
+0.1644705 & 0.6687453 & 0.0274699 & 0.0000659 & 0.1489999 & 0.0004998 &
+0.0005000 & NA & NA & 17899 & 17899.000 \\
+Mental health & All-cannabis & Impulsivity & 0.0628764 & 0.0120855 &
+0.0000002 & 0.0000006 & 0.3832680 & 0.1440412 & 0.7111494 & 0.0004998 &
+0.0005000 & NA & NA & 17899 & 17899.000 \\
+Mental health & All-frequency & Impulsivity & 0.0288487 & 0.0119215 &
+0.0155506 & 0.0533165 & 0.0831694 & 0.0037891 & 0.2619695 & 0.0004998 &
+0.0005215 & NA & NA & 17899 & 17899.000 \\
+Mental health & Ever use & Phobia & -0.0292271 & 0.0437943 & 0.5045344 &
+0.9023559 & -0.0147636 & -0.2579015 & -0.0000656 & 0.0004998 & 0.0005000
+& 1651 & 15527 & 17178 & 5969.281 \\
+Mental health & All-cannabis & Phobia & 0.1235021 & 0.0449402 &
+0.0059934 & 0.0089902 & 0.2522266 & 0.0236575 & 0.6915469 & 0.0004998 &
+0.0005000 & 1651 & 15527 & 17178 & 5969.281 \\
+Mental health & All-frequency & Phobia & 0.1119916 & 0.0450131 &
+0.0128473 & 0.0513890 & 0.2070009 & 0.0113229 & 0.6775645 & 0.0004998 &
+0.0005215 & 1651 & 15527 & 17178 & 5969.281 \\
+Mental health & Ever use & Panic disorder & 0.0103668 & 0.0342635 &
+0.7622252 & 0.9633376 & 0.0021541 & 0.0000375 & 0.1364221 & 0.0004998 &
+0.0005000 & 3208 & 20807 & 24015 & 11117.861 \\
+Mental health & All-cannabis & Panic disorder & 0.1331053 & 0.0348609 &
+0.0001344 & 0.0002482 & 0.3423093 & 0.0827709 & 0.7667445 & 0.0004998 &
+0.0005000 & 3208 & 20807 & 24015 & 11117.861 \\
+\end{longtable}
+
+\end{document}

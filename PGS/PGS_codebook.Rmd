@@ -1,0 +1,817 @@
+---
+title: "Cannabis PGS in STAGE"
+author: "Joëlle Pasman"
+date: "November 19, 2025"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    collapsed: true
+    theme: united
+---
+
+```{r setup, include=FALSE, eval=TRUE}
+
+library(tidyverse) 
+library(data.table)
+library(knitr)
+
+knitr::opts_knit$set(root.dir = "C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, error=FALSE)
+
+```
+
+# Prepare data
+
+This code shows how polygenic risk scores were created to capture genetic risk for cannabis use to predict a set of outcomes in the STAGE dataset from the Swedish Twin Register. The genotype data are located at a different cluster space (Uppmax Bianca) than the phenotypic data and were linked by STR.
+
+## Clean phenotype data
+
+Documentation for these phenotypes can be requested from STR. 
+
+```{r, eval = F}
+
+library(tidyverse) 
+library(data.table)
+
+raw <- fread("pheno_stage.csv")
+
+# Cannabis
+
+canpheno <- raw %>% 
+  mutate(can_maxfrq = ifelse(CANN_AMO == 1, CANNAMOV, NA)) %>% 
+  mutate(can_ever = ifelse(DRUGS_MARIJUAN == 1 | DRUGS_HASCH == 1, 1, NA)) %>% 
+  mutate(can_ever = ifelse(is.na(can_ever) & (DRUGS_MARIJUAN == 0 | DRUGS_HASCH == 0), 0, can_ever)) %>%
+  mutate(can_agefirst = ifelse(AGE_CANN == 1, AGECV, NA)) %>% 
+  mutate(can_agefirst = ifelse(can_agefirst < 10, NA, can_agefirst)) %>% 
+  mutate(can_agemax = ifelse(AGECANMO == 1, AGECMV, NA)) %>% 
+  mutate(can_agemax = ifelse(can_agemax < 10, NA, can_agemax)) %>% 
+   mutate(across(c(can_maxfrq, can_agefirst, can_agemax), scale)) %>% 
+  select(idSTR, can_maxfrq, can_ever, can_agefirst, can_agemax)
+  
+fwrite(canpheno, "canpheno.tsv")
+
+
+# Other substance us
+
+drugspheno <- raw %>% 
+  mutate(opioids = pmax(DRUGS_OPIUM, DRUGS_MORPH, DRUGS_HEROIN, DRUGS_CODEIN, na.rm = T)) %>% 
+  mutate(stimulants = pmax(DRUGS_COCAINE, DRUGS_AMPHET, DRUGS_METHYLP, na.rm = T)) %>% 
+  mutate(ecstacy = DRUGS_ECSTACY) %>%
+  mutate(halluci = pmax(DRUGS_LSD, DRUGS_MUSHROOM, na.rm = T)) %>%
+  mutate(tranq = pmax(DRUGS_ROHYPNOL, DRUGS_SOPORIF, DRUGS_GHB, na.rm = T)) %>%
+  mutate(steroids = pmax(DRUGS_GROWTHH, DRUGS_STEROIDS, na.rm = T)) %>%
+   mutate(drugs_not_can = pmax(DRUGS_OPIUM, DRUGS_MORPH, DRUGS_HEROIN, DRUGS_CODEIN, DRUGS_COCAINE, DRUGS_AMPHET, DRUGS_METHYLP, DRUGS_ECSTACY, DRUGS_LSD, DRUGS_MUSHROOM, DRUGS_ROHYPNOL, DRUGS_SOPORIF, DRUGS_GHB, DRUGS_GROWTHH, DRUGS_STEROIDS, na.rm = T)) %>% 
+  mutate(alc_abuse = ifelse(X_ALC_ABUSE == 1, 1, NA)) %>% 
+  mutate(alc_abuse = ifelse(X_ALC_ABUSE == 0, 0, alc_abuse)) %>% 
+  mutate(smok_reg = ifelse(X_REGSM == 1, 1, 0)) %>% 
+  mutate(smok_reg = ifelse(is.na(smok_reg), 0, smok_reg)) %>% 
+   mutate(smok_ftnd = scale(X_FTNDSMOSCORE)) %>% 
+  select(idSTR, opioids, stimulants, ecstacy, halluci, tranq, steroids, drugs_not_can, alc_abuse, smok_reg, smok_ftnd)
+  
+
+fwrite(drugspheno, "drugspheno.tsv")
+
+
+# Mental health
+
+## Mental health dataset
+## drop traits with <100 cases, except schizo
+
+psychpheno <- raw %>% 
+  mutate(eatingdis = ifelse(EATDIS == 1, 1, NA)) %>% 
+  mutate(eatingdis = ifelse(EATDIS == 0, 0, eatingdis)) %>% 
+  mutate(mdd = ifelse(DEPRESS == 1 | X_DSM4DEP == 1, 1, NA)) %>% 
+  mutate(mdd = ifelse(is.na(mdd) & DEPRESS == 0, 0, mdd)) %>% 
+  mutate(mdd = ifelse(is.na(mdd) & X_DSM4DEP == 0, 0, mdd)) %>% 
+  mutate(phobia = ifelse(FOBIA == 1, 1, NA)) %>% 
+  mutate(phobia = ifelse(FOBIA == 0, 0, fobia)) %>% 
+  mutate(bip = ifelse(MANICDEP == 1, 1, NA)) %>% 
+  mutate(bip = ifelse(MANICDEP == 0, 0, bip)) %>%   
+  mutate(ocd = ifelse(OBSESS == 1, 1, NA)) %>% 
+  mutate(ocd = ifelse(OBSESS == 0, 0, ocd)) %>% 
+  mutate(panicdis = ifelse(PANIC == 1, 1, NA)) %>% 
+  mutate(panicdis = ifelse(PANIC == 0, 0, panicdis)) %>%   
+  mutate(substancedis = ifelse(DRUGSALC == 1, 1, NA)) %>% 
+  mutate(substancedis = ifelse(DRUGSALC == 0, 0, substancedis)) %>% 
+  mutate(schizo = ifelse(SCHIZO == 1, 1, NA)) %>% 
+  mutate(schizo = ifelse(SCHIZO == 0, 0, schizo)) %>% 
+  mutate(tourette = ifelse(TOURETTE == 1, 1, NA)) %>% 
+  mutate(tourette = ifelse(TOURETTE == 0, 0, tourette)) %>% 
+  mutate(impulsive = ifelse(IMPULSIV < 10, scale(IMPULSIV), NA)) %>% 
+  select(idSTR, eatingdis, mdd, fobia, bip, ocd, panicdis, substancedis, schizo, tourette, impulsive)
+
+fwrite(psychpheno, "psychpheno.tsv")
+
+```
+
+## Clean sumstats
+
+The summary statistics that will form the basis for the PGSs are prepared.
+
+```{r, eval = F}
+
+# Ever use
+
+CANNABIS_EVR <- fread("results/metal/MA_CANNABIS_EVR_250919.txt.gz")
+
+CANNABIS_EVR <- CANNABIS_EVR %>% 
+  rename(beta = BETA) %>% 
+  mutate(CHR_BP = paste0(CHR, "_", BP)) %>% 
+  group_by(CHR_BP) %>% 
+  filter(n() == 1) %>% 
+  ungroup() %>% 
+  group_by(SNP) %>% 
+  arrange(desc(N)) %>% 
+  filter(n() == 1) %>% 
+  ungroup() 
+
+fwrite(CANNABIS_EVR, "results/metal/CANNABIS_EVR_formatted_forldpred.txt", sep = "\t")
+
+# All-frequency
+
+FREQ_MA <- fread("results/gsem/MA_FREQ_ALL_250919.txt.gz")
+
+FREQ_MA <- FREQ_MA %>% 
+  rename(beta = BETA) %>% 
+  mutate(CHR_BP = paste0(CHR, "_", BP)) %>% 
+  group_by(CHR_BP) %>% 
+  filter(n() == 1) %>% 
+  ungroup() %>% 
+  group_by(SNP) %>% 
+  arrange(desc(N)) %>% 
+  filter(n() == 1) %>% 
+  ungroup() 
+
+fwrite(FREQ_MA, "results/gsem/FREQ_MA_formatted.txt", sep = "\t", quote = F, na = "NA")
+
+# All-cannabis
+
+FACTOR <- fread("results/gsem/MA_CANN_FACTOR_250919.txt.gz")
+
+FACTOR <- FACTOR %>% 
+  rename(beta = BETA) %>% 
+  mutate(CHR_BP = paste0(CHR, "_", BP)) %>% 
+  group_by(CHR_BP) %>% 
+  filter(n() == 1) %>% 
+  ungroup() %>% 
+  group_by(SNP) %>% 
+  arrange(desc(N)) %>% 
+  filter(n() == 1) %>% 
+  ungroup() 
+
+fwrite(FACTOR, "results/gsem/CANNABIS_FACTOR_formatted.txt", sep = "\t", quote = F, na = "NA")
+
+
+
+```
+
+# Create PGS weighting scheme
+
+Moving back to the server with the genetic data, relying on the CoMorMent containers (https://github.com/comorment/ldpred2_standalone) to run LDpred2 to create LD-score weighted polygenic risk scores. 
+
+```{bash, eval = F}
+
+# Ever use
+
+echo -en '#!/bin/bash
+#SBATCH --job-name=everpgs
+#SBATCH -p node
+#SBATCH -t 1:00:00
+#SBATCH --array=1-22
+
+export fileGenoRDS=stage_geno${SLURM_ARRAY_TASK_ID}.rds
+
+export REFERENCE=$COMORMENT/containers/reference
+export LDPRED2_REF=$COMORMENT/ldpred2_ref
+export SINGULARITY_BIND=$REFERENCE:/REF,${LDPRED2_REF}:/ldpred2_ref
+export RSCRIPT="singularity exec --home $PWD $SIF/r.sif Rscript"
+
+# Generate PGS using LDPRED2-auto
+$RSCRIPT $COMORMENT/containers/scripts/pgs/LDpred2/ldpred2.R --ldpred-mode auto \
+ --merge-by-rsid \
+ --effective-sample-size 560459 \
+ --geno-file-rds $fileGenoRDS \
+ --sumstats cannabis/CANNABIS_EVR_formatted_forldpred.txt \
+ --out cannabis/CANNABIS_EVR${SLURM_ARRAY_TASK_ID}.auto
+
+' > CANNABIS_EVR_ldpred2.sh
+
+sbatch CANNABIS_EVR_ldpred2.sh
+
+
+# All-frequency
+
+echo -en '#!/bin/bash
+#SBATCH --job-name=frq_ma_pgs
+#SBATCH -p node
+#SBATCH -t 1:00:00
+#SBATCH --array=1-22
+
+export fileGenoRDS=stage_geno${SLURM_ARRAY_TASK_ID}.rds
+
+export REFERENCE=$COMORMENT/containers/reference
+export LDPRED2_REF=$COMORMENT/ldpred2_ref
+export SINGULARITY_BIND=$REFERENCE:/REF,${LDPRED2_REF}:/ldpred2_ref
+export RSCRIPT="singularity exec --home $PWD $SIF/r.sif Rscript"
+
+# Generate PGS using LDPRED2-auto
+$RSCRIPT $COMORMENT/containers/scripts/pgs/LDpred2/ldpred2.R --ldpred-mode auto \
+--merge-by-rsid \
+ --col-n N \
+ --geno-file-rds $fileGenoRDS \
+ --sumstats cannabis/FREQ_MA_formatted.txt \
+ --out cannabis/FREQ_MA${SLURM_ARRAY_TASK_ID}.auto
+
+' > FREQ_MA_ldpred2.sh
+
+sbatch FREQ_MA_ldpred2.sh
+
+
+# All-cannabis
+
+echo -en '#!/bin/bash
+#SBATCH --job-name=factor_pgs
+#SBATCH -p node
+#SBATCH -t 1:00:00
+#SBATCH --array=1-22
+
+export fileGenoRDS=stage_geno${SLURM_ARRAY_TASK_ID}.rds
+
+export REFERENCE=$COMORMENT/containers/reference
+export LDPRED2_REF=$COMORMENT/ldpred2_ref
+export SINGULARITY_BIND=$REFERENCE:/REF,${LDPRED2_REF}:/ldpred2_ref
+export RSCRIPT="singularity exec --home $PWD $SIF/r.sif Rscript"
+
+# Generate PGS using LDPRED2-auto
+$RSCRIPT $COMORMENT/containers/scripts/pgs/LDpred2/ldpred2.R --ldpred-mode auto \
+--merge-by-rsid \
+ --col-n N \
+ --geno-file-rds $fileGenoRDS \
+ --sumstats cannabis/CANNABIS_FACTOR_formatted.txt \
+ --out cannabis/CANNABIS_FACTOR${SLURM_ARRAY_TASK_ID}.auto
+
+' > CANNABIS_FACTOR_ldpred2.sh
+
+sbatch CANNABIS_FACTOR_ldpred2.sh
+
+```
+
+Concatenate the results (summing the per-chromosome scores).
+
+```{r, eval = F}
+
+# Ever use
+
+file_list <- list.files(pattern = "CANNABIS_EVR\\d+\\.auto")
+
+data_list <- lapply(file_list, function(file) {
+  df <- read.table(file, header = TRUE)
+  file_num <- sub("\\.auto", "\\1", basename(file))
+  df <- df %>%
+    rename_with(~ paste0("pgs_", file_num), "score")
+  return(df)
+})
+
+CANNABIS_EVR <- Reduce(function(x, y) merge(x, y, by = c("FID", "IID"), all = TRUE), data_list)
+
+CANNABIS_EVR <- CANNABIS_EVR %>% 
+  mutate(CANNABIS_EVR_pgs = rowSums(select(., starts_with("pgs_CANNABIS_EVR")), na.rm = TRUE)) %>% 
+  select(FID, IID, CANNABIS_EVR_pgs)
+
+fwrite(CANNABIS_EVR, "CANNABIS_EVR.auto")
+
+
+# All-frequency
+
+file_list <- list.files(pattern = "^FREQ_MA\\d+\\.auto$")
+
+data_list <- lapply(file_list, function(file) {
+  df <- read.table(file, header = TRUE)
+  file_num <- sub("\\.auto", "\\1", basename(file))
+  df <- df %>%
+    rename_with(~ paste0("pgs_", file_num), "score")
+  return(df)
+})
+
+FREQ_MA <- Reduce(function(x, y) merge(x, y, by = c("FID", "IID"), all = TRUE), data_list)
+
+FREQ_MA <- FREQ_MA %>% 
+  mutate(FREQ_MA_pgs = rowSums(select(., starts_with("pgs_FREQ_MA")), na.rm = TRUE)) %>% 
+  select(FID, IID, FREQ_MA_pgs)
+
+fwrite(FREQ_MA, "FREQ_MA.auto")
+
+
+## All-cannabis
+
+CANNABIS_FACTOR <- Reduce(function(x, y) merge(x, y, by = c("FID", "IID"), all = TRUE), data_list)
+
+CANNABIS_FACTOR <- CANNABIS_FACTOR %>% 
+  mutate(CANNABIS_FACTOR_pgs = rowSums(select(., starts_with("pgs_CANNABIS_FACTOR")), na.rm = TRUE)) %>% 
+  select(FID, IID, CANNABIS_FACTOR_pgs)
+
+fwrite(CANNABIS_FACTOR, "CANNABIS_FACTOR.auto")
+
+
+
+
+```
+
+# Evaluate PGS effects
+
+Linking of PGS and phenotype files was performed by STR and analyses were done on the Uppmax HPC. We approached (Nagelkerke's) R2 difference between models with an without the PGSs using bootstrapping, using bca where possible. All continuous predictors and outcomes were standardised. For binary outcomes, logistic regression was used. 
+
+```{r, eval = F}
+
+library(tidyverse)
+library(data.table)
+library(glue)
+library(fmsb)
+library(boot)
+
+pgs1 <- fread("freq_ma_stage_linked.txt")
+pgs2 <- fread("cannabis_evr_stage_linked.txt")
+pgs3 <- fread("cannabis_factor_stage_linked.txt")
+canpheno <- fread("canpheno.tsv")
+drugspheno <- fread("drugspheno.tsv")
+psychpheno <- fread("psychpheno.tsv")
+covar <- fread("sex_birthyear_pcs.csv")
+
+pheno <- canpheno %>% 
+  inner_join(covar, by=c("idSTR"="stage_id")) %>% 
+  inner_join(pgs1, by=c("idSTR"="stage_id")) %>% 
+  inner_join(pgs2, by=c("idSTR"="stage_id")) %>% 
+  inner_join(pgs3, by=c("idSTR"="stage_id")) %>% 
+  left_join(drugspheno) %>% 
+  left_join(psychpheno) 
+
+# Check sex and age distribution
+
+pheno %>% 
+  filter(!is.na(FREQ_MA_pgs)) %>% 
+  group_by(sex) %>% 
+  summarise(n())
+
+pheno %>% 
+  filter(!is.na(FREQ_MA_pgs)) %>% 
+  summarise(range(birth_y, na.rm = T))
+
+pheno %>% 
+  filter(!is.na(FREQ_MA_pgs)) %>% 
+  summarise(mean(birth_y, na.rm = T), sd(birth_y, na.rm = T))
+
+# Find continuous variables to standardise
+is_bin <- map_lgl(pheno, ~ length(unique(.)) <= 3)
+traits_bin <- colnames(pheno)[is_bin]
+traits_con <- colnames(pheno)[!is_bin]
+traits_con <- traits_con[-1]
+traits_bin <- traits_bin[-2]
+
+pheno <- pheno %>% 
+  mutate(across(all_of(traits_con), ~ scale(.)))
+
+# Regression functions
+
+evalpgs <- function(trait, pgs) {
+  f1 <- as.formula(glue("{trait} ~ {pgs} + sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+  res <- summary(x <- glm(data = pheno, f1, family = "binomial"))$coefficients
+  data.frame(res, parameter = row.names(res))
+}   
+
+evalpgs_con <- function(trait, pgs) {
+  f1 <- as.formula(glue("{trait} ~ {pgs} + sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+  res <- summary(x <- lm(data = pheno, f1))$coefficients
+  data.frame(res, parameter = row.names(res))
+} 
+
+# R2 functions
+
+#### R2 with bootstrapping to get SE
+##### Binary
+
+evalpgsR2_bin_boot <- function(trait, pgs, data = pheno,
+                               n_boot = 1000, seed = NULL,
+                               parallel = FALSE, n_cores = max(1, parallel::detectCores() - 1)) {
+  if (!is.null(seed)) set.seed(seed)
+
+  f1 <- as.formula(glue("{trait} ~ {pgs} + sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+  f2 <- as.formula(glue("{trait} ~          sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+
+  # point estimate
+  fit1 <- glm(f1, data = data, family = binomial())
+  fit2 <- glm(f2, data = data, family = binomial())
+  delta_r2_hat <- as.numeric(fmsb::NagelkerkeR2(fit1)$R2 - fmsb::NagelkerkeR2(fit2)$R2)
+
+  # bootstrap statistic
+  stat_fn <- function(d, idx) {
+    d <- d[idx, , drop = FALSE]
+    f1b <- glm(f1, data = d, family = binomial())
+    f2b <- glm(f2, data = d, family = binomial())
+    as.numeric(fmsb::NagelkerkeR2(f1b)$R2 - fmsb::NagelkerkeR2(f2b)$R2)
+  }
+
+  b <- boot::boot(
+    data = data,
+    statistic = stat_fn,
+    R = n_boot,
+    parallel = if (parallel) "multicore" else "no",
+    ncpus = if (parallel) n_cores else 1
+  )
+
+  boots <- b$t[, 1]
+  boots <- boots[is.finite(boots)]
+  se <- stats::sd(boots)
+
+  # BCa CI
+  bca_obj <- try(boot::boot.ci(b, type = "bca"), silent = TRUE)
+  if (inherits(b, "try-error") || is.null(bca_obj$bca)) { # can happen in the leave-one-out jackknife step (boot.ci)
+    ci <- stats::quantile(boots, probs = c(0.025, 0.975), na.rm = TRUE) # not bias-adjusted as bca, but still asymmetrical CI
+    ci_low  <- unname(ci[1]); ci_high <- unname(ci[2])
+  } else {
+    ci_low  <- bca_obj$bca[4] # this is bias-adjusted
+    ci_high <- bca_obj$bca[5]
+  }
+
+  # bootstrap p-value for H0: ΔR² = 0, one-sided (ΔR² > 0)
+  B <- length(boots)
+  p_boot <- (sum(boots <= 0, na.rm = TRUE) + 1) / (B + 1)
+
+  tibble(
+    pgs       = pgs,
+    R2        = delta_r2_hat,
+    se        = se,
+    ci95_low  = ci_low,
+    ci95_high = ci_high,
+    P_R2      = p_boot      # from same bootstrap as CI
+  )
+}
+
+##### Continuous 
+
+evalpgsR2_con_boot <- function(trait, pgs, data = pheno,
+                               n_boot = 1000, seed = NULL,
+                               parallel = FALSE, n_cores = max(1, parallel::detectCores() - 1)) {
+  if (!is.null(seed)) set.seed(seed)
+
+  f1 <- as.formula(glue("{trait} ~ {pgs} + sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+  f2 <- as.formula(glue("{trait} ~ sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+
+  # point estimate
+  fit1 <- lm(f1, data = data)
+  fit2 <- lm(f2, data = data)
+  delta_r2_hat <- summary(fit1)$r.squared - summary(fit2)$r.squared
+
+  # bootstrap statistic
+  stat_fn <- function(d, idx) {
+    d <- d[idx, , drop = FALSE]
+    f1b <- lm(f1, data = d)
+    f2b <- lm(f2, data = d)
+    summary(f1b)$r.squared - summary(f2b)$r.squared
+  }
+
+  b <- boot::boot(
+    data = data,
+    statistic = stat_fn,
+    R = n_boot,
+    parallel = if (parallel) "multicore" else "no",
+    ncpus = if (parallel) n_cores else 1
+  )
+
+  boots <- b$t[, 1]
+  boots <- boots[is.finite(boots)]
+  se <- stats::sd(boots)
+
+  # BCa CI
+  bca_obj <- try(boot::boot.ci(b, type = "bca"), silent = TRUE)
+  if (inherits(bca_obj, "try-error") || is.null(bca_obj$bca)) {
+    ci <- stats::quantile(boots, probs = c(0.025, 0.975), na.rm = TRUE)
+    ci_low  <- unname(ci[1]); ci_high <- unname(ci[2])
+  } else {
+    ci_low  <- bca_obj$bca[4]
+    ci_high <- bca_obj$bca[5]
+  }
+
+  # bootstrap p-value for H0: ΔR² = 0, one-sided (ΔR² > 0)
+  B <- length(boots)
+  p_boot <- (sum(boots <= 0, na.rm = TRUE) + 1) / (B + 1)
+
+  tibble(
+    pgs       = pgs,
+    R2        = delta_r2_hat,
+    se        = se,
+    ci95_low  = ci_low,
+    ci95_high = ci_high,
+    P_R2      = p_boot
+  )
+}
+
+
+
+# Trait combinations 
+
+traits_con <- traits_con[c(1:3, 28,29)]
+pgs <- colnames(pheno)[c(28:30)]
+combos_bin <- crossing(pgs, traits_bin)
+combos_con <- crossing(pgs, traits_con)
+
+# Running the analyses
+
+results_bin <- map2(combos_bin$traits_bin, combos_bin$pgs, evalpgs)
+results_r2_bin <- map2(combos_bin$traits_bin, combos_bin$pgs, evalpgsR2_bin)
+results_r2_bin <- map2(combos_bin$traits_bin, combos_bin$pgs, evalpgsR2_bin_boot, n_boot = 2000, seed = 42)
+saveRDS(results_r2_bin, "results_r2_bin.RDS")
+
+results_con <- map2(combos_con$traits_con, combos_con$pgs, evalpgs_con)
+results_r2_con <- map2(combos_con$traits_con, combos_con$pgs, evalpgsR2_con)
+results_r2_con <- map2(combos_con$traits_con, combos_con$pgs, evalpgsR2_con_boot, n_boot = 2000, seed = 42)
+saveRDS(results_r2_con, "results_r2_con.RDS")
+
+# Munging results
+
+names(results_bin) <- combos_bin$traits_bin
+names(results_con) <- combos_con$traits_con
+names(results_r2_bin) <- combos_bin$traits_bin
+names(results_r2_con) <- combos_con$traits_con
+
+results_bin_df <- rbindlist(results_bin, idcol = T)
+results_con_df <- rbindlist(results_con, idcol = T)
+results_r2_bin_df <- rbindlist(results_r2_bin, idcol = T)
+results_r2_con_df <- rbindlist(results_r2_con, idcol = T)
+
+colnames(results_bin_df) <- c("outcome", "b", "SE", "teststatistic", "p", "predictor")
+colnames(results_con_df) <- c("outcome", "b", "SE", "teststatistic", "p", "predictor")
+
+colnames(results_r2_bin_df) <- c("outcome", "predictor", "R2", "R2_se", "R2_ci95_low", "R2_ci95_high","R2_p")
+colnames(results_r2_con_df) <- c("outcome", "predictor", "R2", "R2_se", "R2_ci95_low", "R2_ci95_high","R2_p")
+
+
+results_bin_df <- results_bin_df %>% inner_join(results_r2_bin_df)
+results_con_df <- results_con_df %>% inner_join(results_r2_con_df)
+
+fwrite(rbind(results_bin_df, results_con_df, fill = T), "prs_results.tsv")
+
+
+
+
+```
+
+Below is a small check to see how often BCa is used and how often just percentiles for the derivation of the CI of the R2.
+
+```{r, eval = F}
+
+# Binary
+
+diag_jackknife_bin <- function(trait, pgs, data = pheno) {
+  f1 <- as.formula(paste(
+    trait, "~", pgs,
+    "+ sex + birth_y",
+    "+ PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU",
+    "+ PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"
+  ))
+  f2 <- as.formula(paste(
+    trait, "~",
+    "sex + birth_y",
+    "+ PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU",
+    "+ PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"
+  ))
+
+  n  <- nrow(data)
+  ok <- logical(n)
+
+  for (i in seq_len(n)) {
+    d <- data[-i, , drop = FALSE]
+    out <- try({
+      m1 <- glm(f1, data = d, family = binomial())
+      m0 <- glm(f2, data = d, family = binomial())
+      fmsb::NagelkerkeR2(m1)$R2 - fmsb::NagelkerkeR2(m0)$R2
+    }, silent = TRUE)
+    ok[i] <- !(inherits(out, "try-error") || !is.finite(out))
+  }
+
+  data.frame(
+    trait = trait,
+    pgs   = pgs,
+    jackknife_ok     = all(ok),
+    jackknife_n_fail = sum(!ok)
+  )
+}
+
+# Continuous 
+
+diag_jackknife_con <- function(trait, pgs, data = pheno) {
+  f1 <- as.formula(glue("{trait} ~ {pgs} + sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+  f2 <- as.formula(glue("{trait} ~          sex + birth_y + PC1_EU + PC2_EU + PC3_EU + PC4_EU + PC5_EU + PC6_EU + PC7_EU + PC8_EU + PC9_EU + PC10_EU"))
+
+  n  <- nrow(data)
+  ok <- logical(n)
+
+  for (i in seq_len(n)) {
+    d <- data[-i, , drop = FALSE]
+    out <- try({
+      m1 <- lm(f1, data = d)
+      m0 <- lm(f2, data = d)
+      summary(m1)$r.squared - summary(m0)$r.squared
+    }, silent = TRUE)
+    ok[i] <- !(inherits(out, "try-error") || !is.finite(out))
+  }
+
+  tibble::tibble(
+    trait            = trait,
+    pgs              = pgs,
+    jackknife_ok     = all(ok),
+    jackknife_n_fail = sum(!ok)
+  )
+}
+
+jackknife_bin <- map2(combos_bin$traits_bin, combos_bin$pgs, diag_jackknife_bin)
+jackknife_con <- map2(combos_con$traits_con, combos_con$pgs, diag_jackknife_con)
+
+fwrite(rbindlist(jackknife_bin), "jackknife_diag_bin.tsv")
+fwrite(rbindlist(jackknife_con), "jackknife_diag_con.tsv")
+
+
+```
+
+# Figure 4: pgs results
+
+Next, we plot results, first inspecting the regression weights:
+
+```{r}
+
+library(readxl)
+library(tidyverse)
+library(data.table)
+library(scales)
+library(patchwork)
+
+res <- fread("results/prs/prs_results.tsv")
+labels <- read_excel("scripts/prs/outcome_labels.xlsx")
+
+res <- res %>% 
+  left_join(labels, by=c("outcome"="name")) %>% 
+  select(!(item)) %>% 
+  filter(predictor != "(Intercept)") %>% 
+  mutate(predictor = dplyr::recode(predictor, "CANNABIS_EVR_prs" = "Ever use",
+                            "CANNABIS_FACTOR_prs" = "All-cannabis",
+                            "FREQ_MA_prs" = "All-frequency")) %>% 
+  rename(pgs = predictor) %>% 
+  group_by(pgs) %>% 
+  mutate(p_fdr = p.adjust(p, method = "BH"),         
+         p_fdr_bin = ifelse(p_fdr < .05, "*", "")) %>% 
+  ungroup() %>% 
+  mutate(pgs = factor(pgs, levels = c("Ever use", "All-frequency", "All-cannabis"))) %>% 
+  group_by(outcome) %>% 
+  mutate(maxval = max(b)) %>% 
+  ungroup() %>% 
+  arrange(maxval)
+
+res <- res %>% 
+  mutate(label = factor(.$label, levels = unique(res$label))) 
+
+
+plt_com <- ggplot(subset(res, pgs == "Ever use" | pgs == "All-frequency" | pgs == "All-cannabis"), 
+                  aes(x = b, y = fct_rev(label), color = pgs, shape = p_fdr_bin, fill = p_fdr_bin)) + 
+  geom_pointrange(aes(xmin = b - 1.96 * as.numeric(SE), xmax = b + 1.96 * as.numeric(SE)), 
+                  position = position_dodge(width = -0.65),
+                  size = 0.3) +
+  geom_vline(xintercept = 0, size = 0.15) +
+  facet_grid(Category ~ ., scales = "free", space = "free_y") +
+  theme(axis.title.y = element_blank()) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        strip.text = element_text(colour = 'black', size = 8),
+        strip.background = element_rect(fill = "lightgrey", color = "black"),
+        panel.border = element_rect(color = "black", fill = NA), 
+        plot.title = element_text(size = 10, face = "bold", hjust = 0.5)
+  ) +
+  scale_colour_manual(values = c("#66a61e", "#7570b3", "#d95f02")) +
+  xlab("Regression weight") +
+  scale_shape_manual(values = c(1, 19)) +
+  scale_fill_manual(values = c("white", NA)) +
+  guides(shape = "none", fill = "none")
+
+plt_com
+
+```
+
+and then with R2-values. We use Nagelkerke's R2 and the chi-square distribution p-value (LRT) for binary traits.  
+
+
+```{r}
+
+res2 <- res %>%
+  mutate(
+      s = ifelse(b < 0, -1, 1),
+      R2 = s * R2,
+      lo = s * R2_ci95_high,
+      hi = s * R2_ci95_low,
+      R2_ci95_low  = pmin(lo, hi),
+      R2_ci95_high = pmax(lo, hi)
+    ) %>%
+  select(-s, -lo, -hi) %>% 
+  mutate(R2 = R2*100, R2_se = R2_se *100,
+         R2_ci95_low = R2_ci95_low * 100, 
+         R2_ci95_high = R2_ci95_high *100) %>% 
+  group_by(Category) %>%
+  mutate(
+    ypos = dense_rank(desc(label)),   # ranks within each Category, reversed
+    ypos = case_when(
+      pgs == "Ever use"     ~ ypos + 0.27,
+      pgs == "All-cannabis" ~ ypos - 0.27,
+      TRUE                  ~ ypos
+    )) %>% 
+  mutate(
+    N_cases = as.numeric(N_cases),
+    N_controls = as.numeric(N_controls),
+    N = as.numeric(N),
+    N_eff = ifelse(!is.na(N_cases),
+                   4 * N_cases * N_controls / (N_cases + N_controls),
+                   N)
+  ) %>% 
+  group_by(pgs) %>% 
+  mutate(R2_p_fdr = p.adjust(R2_p, method = "BH"),         
+         R2_p_fdr_bin = ifelse(p_fdr < .05, "*", "")) %>% 
+  mutate(direction = ifelse(b<0, "-", " "))
+
+plt_com <- ggplot(subset(res2, pgs == "Ever use" | pgs == "All-frequency" | pgs == "All-cannabis"), 
+                  aes(x = R2, xmin = R2_ci95_low, xmax = R2_ci95_high,
+              y = fct_rev(label), color = fct_rev(pgs),  shape = R2_p_fdr_bin, fill = R2_p_fdr_bin)) + 
+  geom_pointrange(position = position_dodge(width = 0.8), size = 0.4, fatten = 4) +
+  geom_vline(xintercept = 0, size = 0.15) +
+  facet_grid(Category ~ ., scales = "free", space = "free_y") +
+  coord_cartesian(xlim = c(-1.5, 5)) +
+  geom_segment(
+    data = subset(res2, R2_ci95_high > 5),
+    aes(x = 4, xend = 5.25, y =  ypos,
+        color = fct_rev(pgs)),
+    # pos = position_dodge2(width = 1, reverse = FALSE),
+    arrow = arrow(length = unit(1.5, "mm"), type = "closed"),
+    show.legend = FALSE
+  ) +
+    geom_segment(
+    data = subset(res2, R2_ci95_low < - 1.5),
+    aes(x = -1, xend = -1.75, y = ypos,
+        color = pgs),
+    arrow = arrow(length = unit(1.5, "mm"), type = "closed"),
+    show.legend = FALSE
+  ) +
+  theme(axis.title.y = element_blank()) +
+  theme_minimal() +
+  theme(axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.x = element_text(hjust = 0.75),
+        strip.text = element_text(colour = 'black', size = 8),
+        strip.background = element_rect(fill = "lightgrey", color = "black"),
+        panel.border = element_rect(color = "black", fill = NA), 
+        plot.title = element_text(size = 10, face = "bold", hjust = 0.5)
+  ) +
+  scale_colour_manual(
+        name = "Cannabis PGS",
+        values = c("Ever use" = "#66a61e", "All-frequency" = "#7570b3", "All-cannabis" = "#d95f02"),
+        breaks = c("Ever use", "All-frequency", "All-cannabis") 
+      ) +
+  xlab(expression(bold("%R"^2))) +
+  scale_shape_manual(values = c(1, 19)) +
+  scale_fill_manual(values = c("white", NA)) +
+  guides(shape = "none", fill = "none")
+
+
+plt_com_N <- ggplot(subset(res2, pgs == "Ever use"), 
+              aes(x = 5, y = fct_rev(label))) +  
+  facet_grid(Category ~ ., scales = "free", space = "free_y") +
+  geom_text(aes(label = comma(N_eff)), size = 3) + 
+    theme(axis.title.y = element_blank()) +
+  theme_classic() +
+  theme(axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        strip.text = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(color = "black", fill = NA)) +
+  xlab(expression(bold("N_eff")))
+
+
+plt_combi <- plt_com_N + plt_com + plot_layout(widths = c(0.2, 0.8))
+plt_combi
+
+ggsave("results/prs/pgs_res_com_R2.svg", plt_combi, width = 7.5, height = 7.5)
+ggsave("results/prs/pgs_res_com_R2.png", plt_combi, width = 7.5, height = 7.5)
+
+```
+
+# Supplementary Table Sx: full pgs results
+
+For the supplement, we create a table with the full results. Here the first 20 rows are shown.
+
+```{r}
+
+restable <- res2 %>% 
+  select(Category, pgs, label, b, SE, p, p_fdr, R2, R2_ci95_low, R2_ci95_high, R2_p, R2_p_fdr, N_cases, N_controls, N, N_eff)
+
+fwrite(restable, "results/prs/pgs_results_table.csv")
+
+kable(head(restable, n=20))
+
+```

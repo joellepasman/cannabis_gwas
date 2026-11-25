@@ -1,0 +1,1637 @@
+---
+title: "ICC4 - Manhattan plots"
+author: "Joëlle Pasman"
+date: "November 19, 2025"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_float: true
+    collapsed: true
+    theme: united
+---
+
+```{r setup, include=FALSE, eval=TRUE}
+
+library(tidyverse)
+library(data.table)
+library(readxl)
+library(ggrepel)
+library(TwoSampleMR)
+
+knitr::opts_knit$set(root.dir = "C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results")
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, error=FALSE)
+
+```
+
+# Mirror plot ever use
+
+We start with a mirror Manhattan plot (Miami plot) for the trans-ancestry and European results for ever use of cannabis.
+
+## Europeans
+
+The summary statistics are formatted and top SNPs are identified using clumping. For the X-chromosome, the risk loci were filtered out because they were not present in the reference data. We added them and manually clumped them based on proximity. Note that loci that were too close to each other were pruned further (even if they were genome-wide significant) for visibility.
+
+```{r, eval = F}
+
+CANNABIS_EVR <- fread("metal/MA_CANNABIS_EVR_250919.txt.gz")
+CANNABIS_EVR_X <- fread("metal/MA_CANNABIS_EVR_X_250409.txt")
+CANNABIS_EVR <- rbind(CANNABIS_EVR, CANNABIS_EVR_X) %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR),
+         CHR = as.numeric(CHR))
+
+CANNABIS_EVR_cum <- CANNABIS_EVR %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+CANNABIS_EVR_data <- CANNABIS_EVR %>% 
+  inner_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- CANNABIS_EVR_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- CANNABIS_EVR_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = -1 * abs(floor(log10(P)))) %>% 
+  pull(ylim)
+
+ylim <- ylim - 2
+
+sig <- 5e-8
+
+# Clump hits
+
+CANNABIS_top <- CANNABIS_EVR %>% 
+  filter(P<5e-8) %>% 
+  rename(effect_allele = A1) %>% 
+  rename(other_allele = A2) %>% 
+  rename(eaf=EAF) %>% 
+  rename(beta=BETA) %>% 
+  rename(se=SE) %>% 
+  rename(pval=P) %>% 
+  rename(samplesize=N) 
+
+fwrite(CANNABIS_top, "metal/CANNABIS_EVR.hits", sep=" ", quote=F, na=NA)
+
+CANNABIS_top <- read_exposure_data("metal/CANNABIS_EVR.hits")
+CANNABIS_top <- clump_data(
+  CANNABIS_top,
+  clump_kb = 10000,
+  clump_r2 = 0.01,
+  bfile = "/1000genomes/1kg.v3/EUR",
+  plink_bin = "/genetics.binaRies/bin/plink"
+)
+
+CANNABIS_top <- CANNABIS_top %>% 
+  select(SNP) %>% 
+  left_join(CANNABIS_EVR_data) 
+
+CANNABIS_top_nonoverlapping <- CANNABIS_top %>%
+  arrange(P) %>%  
+  group_by(CHR) %>%  
+  do({
+    snps <- .
+    kept <- c()
+    for (i in seq_len(nrow(snps))) {
+      pos <- snps$bp_cum[i]
+      if (all(abs(pos - snps$bp_cum[kept]) > 15000000)) {
+        kept <- c(kept, i)
+      }
+    }
+    snps[kept, ]
+  }) %>%
+  ungroup()
+
+# SNPs that overlap with other labels after ggrepel are plotted separately
+CANNABIS_top_nonoverlapping <- CANNABIS_top_nonoverlapping %>% filter(SNP != "rs62389423" & SNP != "rs4856598" & SNP != "rs113367058" & SNP != "rs1061808")
+
+
+## X SNPs are not in clump reference file so add those manually
+
+CANNABIS_top_X <- CANNABIS_EVR_data %>% 
+  filter(CHR == 23 & P<5e-8)
+
+CANNABIS_top_X$bp_bin <- cut(
+  CANNABIS_top_X$bp_cum,
+  breaks = quantile(CANNABIS_top_X$bp_cum, probs = seq(0, 1, length.out = 10), na.rm = TRUE),
+  include.lowest = TRUE,
+  labels = FALSE
+)
+
+CANNABIS_top_X <- CANNABIS_top_X %>% 
+  filter(bp_bin == 1 | bp_bin == 9) %>% 
+  group_by(bp_bin) %>% 
+  arrange(P) %>% 
+  slice(1)
+
+
+
+# Add genes mapped positionally with FUMA
+
+CANNABIS_EVR_genes <- fread("fuma/CANNABIS_EVR_genes.txt")
+
+CANNABIS_EVR_genes_cum <- CANNABIS_EVR_genes %>% 
+  rename(CHR = chr) %>% 
+  filter(minGwasP <5e-8) %>% 
+  mutate(mid = end - ((end - start)/2)) %>%   
+  left_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = mid + bp_add) 
+
+## group loci that are close
+threshold <- 10000000
+
+CANNABIS_EVR_genes_top <- CANNABIS_EVR_genes_cum %>%
+  group_by(CHR) %>%
+  arrange(bp_cum) %>%
+  mutate(
+    Group = cumsum(ifelse(is.na(lag(bp_cum)) | (bp_cum - lag(bp_cum) > threshold), 1, 0))
+  ) %>%
+  group_by(CHR, Group) %>% 
+  arrange(minGwasP, .by_group = T) %>% 
+  slice(1) %>% 
+  ungroup()
+
+# make some lines for exact gene position
+
+dashedlines <- CANNABIS_EVR_genes_cum %>% 
+  select(bp_cum)
+
+x_coordinates <- eval(parse(text = as.character(dashedlines)))
+```
+
+Then the plot is drawn and annotated:
+
+```{r, eval = F}
+
+
+png("metal/CANNABIS_EVR_eur_manh.png", width=190, height=60, units="mm", res=1000)
+ggplot(CANNABIS_EVR_data, aes(x = bp_cum, y = log10(P), color = as_factor(CHR), size = log10(P))) +
+
+  geom_hline(yintercept = log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  geom_vline(xintercept = x_coordinates, linetype = "dashed", color = "lightgrey", linewidth = 0.2) + 
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, 
+                     breaks = axis_set$center,
+                     position = "top", 
+                     expand = expansion(mult = c(0.01, 0.01))) +
+  coord_cartesian(ylim = c(ylim, 0),
+                  clip = "off") +
+  scale_y_continuous(
+    breaks = pretty(c(ylim, 0)),
+    labels = function(b) abs(b) 
+  ) +
+  scale_color_manual(values = rep(c("#88d631", "#517f1c"), length(unique(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5),
+    plot.margin = margin(5, 30, 5, 30)
+  ) +
+  
+  geom_text(data=CANNABIS_top_nonoverlapping, 
+            aes(x=bp_cum, y = log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text_repel(
+    data = CANNABIS_top_nonoverlapping,
+    aes(x = bp_cum, y = log10(P) - 1, label = SNP),
+    color = "grey30",
+    size = 1.5,
+    angle = 90,
+    direction = "y",
+    hjust = 1,
+    box.padding = 0.3,
+    point.padding = 0.3,
+    force = 2,
+    max.overlaps = Inf,
+    ylim = c(ylim+5, 0),  
+    min.segment.length = 0
+  ) +
+  
+  geom_text(
+    data = CANNABIS_EVR_genes_top,
+    aes(x = bp_cum, y = ylim-2, label = symbol),
+    color = "#476f19",
+    size = 1.5,
+    angle = 90,
+    vjust = 1,
+    hjust = 0
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs1061808"),
+            aes(x = bp_cum - 30000000, y = log10(P)-2, label = SNP),
+            color = "grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+            ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs1061808"), 
+            aes(x=bp_cum, y = log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs4856598"),
+            aes(x = bp_cum - 30000000, y = log10(P), label = SNP),
+            color = "grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs4856598"), 
+            aes(x=bp_cum, y = log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs113367058"),
+            aes(x = bp_cum, y = log10(P) - 11, label = SNP),
+            color = "grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs113367058"), 
+            aes(x=bp_cum, y = log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=CANNABIS_top_X,
+            aes(x = bp_cum, y = log10(P) - 6, label = SNP),
+            color = "grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0) +
+  
+  geom_text(data=CANNABIS_top_X, 
+            aes(x=bp_cum, y = log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) 
+
+dev.off()
+
+fwrite(CANNABIS_top, "metal/CANNABIS_EVR_eur_tophits.csv")
+fwrite(CANNABIS_top_X, "metal/CANNABIS_EVR_eur_topX.csv")
+
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/metal/CANNABIS_EVR_eur_manh.png)
+
+## Trans-ancestry
+
+Now prepare the dataframe for the trans-ancestry results in the same manner. There were no hits on chromosome X for this analysis.
+
+```{r, eval = F}
+
+
+### Trans ancestry
+
+CANNABIS_EVR <- fread("metal/MA_CANNABIS_EVR_cross_250919.txt.gz")
+
+CANNABIS_EVR_cum <- CANNABIS_EVR %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+CANNABIS_EVR_data <- CANNABIS_EVR %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  inner_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- CANNABIS_EVR_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- CANNABIS_EVR_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 10.5) %>% 
+  pull(ylim)
+
+ylim <- 30
+
+sig <- 5e-8
+
+# Use hits clumped with FUMA
+
+CANNABIS_top <- fread("fuma/CANNABIS_EVR_cross_riskloci.txt")
+
+CANNABIS_top <- CANNABIS_top %>% 
+  rename(SNP = rsID) %>% 
+  select(SNP) %>% 
+  left_join(CANNABIS_EVR_data) 
+
+CANNABIS_top_nonoverlapping <- CANNABIS_top %>%
+  arrange(P) %>%  
+  group_by(CHR) %>%  
+  do({
+    snps <- .
+    kept <- c()
+    for (i in seq_len(nrow(snps))) {
+      pos <- snps$bp_cum[i]
+      if (all(abs(pos - snps$bp_cum[kept]) > 15000000)) {
+        kept <- c(kept, i)
+      }
+    }
+    snps[kept, ]
+  }) %>%
+  ungroup()
+
+# SNPs that overlap with other labels after ggrepel are plotted separately
+CANNABIS_top_nonoverlapping <- CANNABIS_top_nonoverlapping %>% filter(SNP != "rs34676049" & SNP != "rs956281")
+
+
+# Add genes mapped positionally with FUMA
+
+CANNABIS_EVR_genes <- fread("fuma/CANNABIS_EVR_cross_genes.txt")
+
+CANNABIS_EVR_genes_cum <- CANNABIS_EVR_genes %>% 
+  rename(CHR = chr) %>% 
+  filter(minGwasP <5e-8) %>% 
+  mutate(mid = end - ((end - start)/2)) %>%   
+  left_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = mid + bp_add) 
+
+## group loci that are close
+threshold <- 10000000
+
+CANNABIS_EVR_genes_top <- CANNABIS_EVR_genes_cum %>%
+  group_by(CHR) %>%
+  arrange(bp_cum) %>%
+  mutate(
+    Group = cumsum(ifelse(is.na(lag(bp_cum)) | (bp_cum - lag(bp_cum) > threshold), 1, 0))
+  ) %>%
+  group_by(CHR, Group) %>% 
+  arrange(minGwasP, .by_group = T) %>% 
+  slice(1) %>% 
+  ungroup()
+
+
+
+
+
+# make some lines for exact gene position
+
+dashedlines <- CANNABIS_EVR_genes_cum %>% 
+  select(bp_cum)
+
+x_coordinates <- eval(parse(text = as.character(dashedlines)))
+
+```
+
+Transancestry plot ever use:
+
+```{r, eval = F}
+
+
+png("metal/CANNABIS_EVR_cross_manh.png", width=190, height=60, units="mm", res=1000)
+ggplot(CANNABIS_EVR_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  geom_vline(xintercept = x_coordinates, linetype = "dashed", color = "lightgrey", linewidth = 0.2) + 
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, 
+                     breaks = axis_set$center,
+                     expand = expansion(mult = c(0.01, 0.01))) +
+  coord_cartesian(ylim = c(0, ylim),
+                  clip = "off") +
+  scale_y_continuous(
+    breaks = pretty(c(ylim, 0)),
+    labels = function(b) abs(b) 
+  ) +
+  scale_color_manual(values = rep(c("#88d631", "#517f1c"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=CANNABIS_top_nonoverlapping, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            # label = "\U0001F341",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text_repel(
+    data = CANNABIS_top_nonoverlapping,
+    aes(x = bp_cum, y = -log10(P) + 1, label = SNP),
+    color = "grey30",
+    size = 1.5,
+    angle = 90,
+    direction = "y",
+    hjust = 0,
+    box.padding = 0.3,
+    point.padding = 0.3,
+    force = 2,
+    max.overlaps = Inf
+  ) +
+  
+  geom_text(
+    data = CANNABIS_EVR_genes_top,
+    aes(x = bp_cum, y = ylim + 1, label = symbol),
+    color = "#476f19",
+    size = 1.5,
+    angle = 90,
+    vjust = 0,
+    hjust = 1
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs34676049"),
+            aes(x = bp_cum, y = -log10(P) + 3, label = SNP),
+            color = "grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs34676049"), 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs956281"),
+            aes(x = bp_cum -1000000, y = -log10(P) - 5, label = SNP),
+            color = "grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  ) +
+  
+  geom_text(data=subset(CANNABIS_top, SNP == "rs956281"), 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) 
+dev.off()
+
+fwrite(CANNABIS_top, "metal/CANNABIS_EVR_cross_tophits.csv")
+
+```
+
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/metal/CANNABIS_EVR_cross_manh.png)
+
+# Combined frequency 
+
+For the Europeans, we combined the frequency summary statistics with Genomic SEM and ran a GWAS on this all-frequency phenotype. We follow the same procedure as before to prepare and plot the results.
+
+
+
+```{r, eval = F}
+
+frq <- fread("gsem/MA_FREQ_ALL_250919.txt.gz") 
+
+frq_cum <- frq %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+frq_data <- frq %>% 
+  inner_join(frq_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- frq_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- frq_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 5.5) %>% 
+  pull(ylim)
+
+
+sig <- 5e-8
+
+# Clump hits
+
+frq_top <- frq %>% 
+  filter(P<5e-8) %>% 
+  rename(effect_allele = A1) %>% 
+  rename(other_allele = A2) %>% 
+  rename(eaf=EAF) %>% 
+  rename(beta=BETA) %>% 
+  rename(se=SE) %>% 
+  rename(pval=P) %>% 
+  rename(samplesize=N) 
+
+fwrite(frq_top, "gsem/FREQ_MA.hits", sep=" ", quote=F, na=NA)
+frq_top <- read_exposure_data("gsem/FREQ_MA.hits")
+frq_top <- clump_data(
+  frq_top,
+  clump_kb = 10000,
+  clump_r2 = 0.01,
+  bfile = "C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/1000genomes/1kg.v3/EUR",
+  plink_bin = "C:/Users/P018906/AppData/Local/R/win-library/4.3/genetics.binaRies/bin/plink"
+)
+
+frq_top <- frq_top %>% 
+  select(SNP) %>% 
+  left_join(frq_data) 
+
+# Create df for genes
+
+frq_genes <- fread("fuma/FREQ_MA_genes.txt")
+
+frq_genes_cum <- frq_genes %>% 
+  rename(CHR = chr) %>% 
+  filter(minGwasP <5e-8) %>% 
+  mutate(mid = end - ((end - start)/2)) %>%   
+  left_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = mid + bp_add) 
+
+
+## group genes that are close
+threshold <- 10000000
+
+frq_genes_top <- frq_genes_cum %>%
+  group_by(CHR) %>%
+  arrange(bp_cum) %>%
+  mutate(
+    Group = cumsum(ifelse(is.na(lag(bp_cum)) | (bp_cum - lag(bp_cum) > threshold), 1, 0))
+  ) %>%
+  group_by(CHR, Group) %>% 
+  arrange(minGwasP, .by_group = T) %>% 
+  slice(1) %>% 
+  ungroup()
+
+## Keep lines for all genes 
+dashedlines <- frq_genes_cum %>% 
+  select(bp_cum)
+
+x_coordinates <- eval(parse(text = as.character(dashedlines)))
+
+```
+
+All frequency plot Europeans:
+
+```{r, eval = FALSE}
+
+
+png("gsem/FREQ_MA_manh.png", width=160, height=60, units="mm", res=1000)
+ggplot(frq_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  geom_vline(xintercept = x_coordinates, linetype = "dashed", color = "lightgrey", linewidth = 0.2) + 
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, breaks = axis_set$center) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, ylim)) +
+  scale_color_manual(values = rep(c("#544cb2", "#aea7ff"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=frq_top, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=frq_top, 
+                  aes(x=bp_cum, y = -log10(P) + 0.5, label = SNP),
+                  color="grey30",
+                  size = 1.5,
+                  angle = 90,
+                  hjust = 0
+  ) +
+  
+  geom_text(data=frq_genes_top,
+            aes(x = bp_cum, y = ylim, label=symbol),
+            color="#383278",
+            bg = "rgba(255,255,255,0.5)",
+            size = 1.7,
+            angle = 90,
+            vjust = 0.5,
+            hjust = 1)
+
+dev.off()
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/gsem/FREQ_MA_manh.png)
+
+# All cannabis factor
+
+We also ran a GWAS on a Genomic SEM model combining the frequency and ever use traits. It had many hits and required much pruning for displaying. 
+
+```{r, eval = F}
+
+
+factor <- fread("gsem/MA_CANN_FACTOR_250919.txt.gz") 
+
+factor_cum <- factor %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+factor_data <- factor %>% 
+  inner_join(factor_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- factor_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- factor_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 5.5) %>% 
+  pull(ylim)
+
+
+sig <- 5e-8
+
+# Clump hits
+
+factor_top <- factor %>% 
+  filter(P<5e-8) %>% 
+  rename(effect_allele = A1) %>% 
+  rename(other_allele = A2) %>% 
+  rename(eaf=EAF) %>% 
+  rename(beta=BETA) %>% 
+  rename(se=SE) %>% 
+  rename(pval=P) %>% 
+  rename(samplesize=N) 
+
+fwrite(factor_top, "gsem/CANNABIS_FACTOR.hits", sep=" ", quote=F, na=NA)
+factor_top <- read_exposure_data("gsem/CANNABIS_FACTOR.hits")
+factor_top <- clump_data(
+  factor_top,
+  clump_kb = 10000,
+  clump_r2 = 0.01,
+  bfile = "C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/1000genomes/1kg.v3/EUR",
+  plink_bin = "C:/Users/P018906/AppData/Local/R/win-library/4.3/genetics.binaRies/bin/plink"
+)
+
+factor_top <- factor_top %>% 
+  select(SNP) %>% 
+  left_join(factor_data) 
+
+factor_top_nonoverlapping <- factor_top %>%
+  arrange(P) %>%  
+  group_by(CHR) %>%  
+  do({
+    snps <- .
+    kept <- c()
+    for (i in seq_len(nrow(snps))) {
+      pos <- snps$bp_cum[i]
+      if (all(abs(pos - snps$bp_cum[kept]) > 15000000)) {
+        kept <- c(kept, i)
+      }
+    }
+    snps[kept, ]
+  }) %>%
+  ungroup()
+
+factor_top_nonoverlapping <- factor_top_nonoverlapping %>% filter(SNP != "rs62389424" & SNP != "rs34495106")
+
+
+# Create df for mapped genes
+
+factor_genes <- fread("fuma/CANNABIS_FACTOR_genes.txt")
+
+factor_genes_cum <- factor_genes %>% 
+  rename(CHR = chr) %>% 
+  filter(minGwasP <5e-8) %>% 
+  mutate(mid = end - ((end - start)/2)) %>%   
+  left_join(factor_cum, by = "CHR") %>% 
+  mutate(bp_cum = mid + bp_add) 
+
+## group loci that are close
+threshold <- 20000000
+
+factor_genes_top <- factor_genes_cum %>%
+  group_by(CHR) %>%
+  arrange(bp_cum) %>%
+  mutate(
+    Group = cumsum(ifelse(is.na(lag(bp_cum)) | (bp_cum - lag(bp_cum) > threshold), 1, 0))
+  ) %>%
+  group_by(CHR, Group) %>% 
+  arrange(minGwasP, .by_group = T) %>% 
+  slice(1) %>% 
+  ungroup()
+
+dashedlines <- factor_genes_cum %>% 
+  select(bp_cum)
+
+x_coordinates <- eval(parse(text = as.character(dashedlines)))
+
+
+```
+
+All cannabis plot Europeans:
+
+```{r, eval = F}
+
+
+png("gsem/CANNABIS_FACTOR_manh.png", width=160, height=60, units="mm", res=1000)
+ggplot(factor_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  geom_vline(xintercept = x_coordinates, linetype = "dashed", color = "lightgrey", linewidth = 0.2) + 
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, breaks = axis_set$center) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, ylim)) +
+  scale_color_manual(values = rep(c("#e56605", "#ffac6d"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=factor_top_nonoverlapping, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=subset(factor_top, SNP == "rs34495106"),
+            aes(x = bp_cum - 30000000, y = -log10(P)-2, label = SNP),
+            color = "grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  ) +
+  
+  geom_text_repel(data=factor_top_nonoverlapping, 
+                  aes(x=bp_cum, y = -log10(P), label = SNP),
+                  color="grey30",
+                  size = 1.5,
+                  angle = 90,
+                  direction = "y",
+                  hjust = 0,
+                  box.padding = 0.1,
+                  point.padding = 0.1
+  ) +
+  
+
+  geom_text(data=factor_genes_top,
+            aes(x = bp_cum, y = ylim, label=symbol),
+            color="#a84a02",
+            bg = "rgba(255,255,255,0.5)",
+            size = 1.7,
+            angle = 90,
+            vjust = 0.5,
+            hjust = 1)
+
+dev.off()
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/gsem/CANNABIS_FACTOR_manh.png)
+
+# Separate frequency traits
+
+For the supplementary figures, we now move on to per frequency trait Manhattan plots.
+
+## Frequency lifetime
+
+Total number of times someone has used cannabis in their life (European only).
+
+```{r, eval = F}
+
+
+frq_life <- fread("metal/MA_FREQ_LIFETIME_250919.txt.gz") 
+frq_life_X <- fread("metal/MA_FREQ_LIFETIME_X_250409.txt")
+
+frq_life <- rbind(frq_life, frq_life_X) %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR),
+         CHR = as.numeric(CHR))
+
+frq_life_cum <- frq_life %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+frq_life_data <- frq_life %>% 
+  inner_join(frq_life_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- frq_life_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- frq_life_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 10.5) %>% 
+  pull(ylim)
+
+sig <- 5e-8
+
+
+
+# Clump hits
+
+frq_life_top <- frq_life %>% 
+  filter(P<5e-8) %>% 
+  rename(effect_allele = A1) %>% 
+  rename(other_allele = A2) %>% 
+  rename(eaf=EAF) %>% 
+  rename(beta=BETA) %>% 
+  rename(se=SE) %>% 
+  rename(pval=P) %>% 
+  rename(samplesize=N) 
+
+fwrite(frq_life_top, "metal/FREQ_LIFETIME.hits", sep=" ", quote=F, na=NA)
+frq_life_top <- read_exposure_data("metal/FREQ_LIFETIME.hits")
+frq_life_top <- clump_data(
+  frq_life_top,
+  clump_kb = 10000,
+  clump_r2 = 0.01,
+  bfile = "C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/1000genomes/1kg.v3/EUR",
+  plink_bin = "C:/Users/P018906/AppData/Local/R/win-library/4.3/genetics.binaRies/bin/plink"
+)
+
+frq_life_top <- frq_life_top %>% 
+  select(SNP) %>% 
+  left_join(frq_life_data) 
+
+```
+
+Lifetime frequency plot Europeans: 
+
+```{r, eval = F}
+
+
+png("metal/FREQ_LIFETIME_manh.png", width=160, height=60, units="mm", res=1000)
+ggplot(frq_life_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, breaks = axis_set$center) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, ylim)) +
+  scale_color_manual(values = rep(c("#517f1c", "#88d631"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=frq_life_top, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=frq_life_top, 
+            aes(x=bp_cum, y = -log10(P) + 0.5, label = SNP),
+            color="grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  )
+
+dev.off()
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/metal/FREQ_LIFETIME_manh.png)
+
+### Maximum frequency
+
+The number of times someone used at the period they used the most. 
+
+```{r, eval = F}
+
+
+frq_max <- fread("metal/MA_FREQ_MAX_250919.txt.gz") 
+frq_max_X <- fread("metal/MA_FREQ_MAX_X_250409.txt")
+
+frq_max <- rbind(frq_max, frq_max_X) %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR),
+         CHR = as.numeric(CHR))
+
+frq_max_cum <- frq_max %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+frq_max_data <- frq_max %>% 
+  inner_join(frq_max_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- frq_max_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- frq_max_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 10.5) %>% 
+  pull(ylim)
+
+sig <- 5e-8
+
+
+
+# Clump hits
+
+frq_max_top <- frq_max %>% 
+  filter(P<5e-8) %>% 
+  rename(effect_allele = A1) %>% 
+  rename(other_allele = A2) %>% 
+  rename(eaf=EAF) %>% 
+  rename(beta=BETA) %>% 
+  rename(se=SE) %>% 
+  rename(pval=P) %>% 
+  rename(samplesize=N) 
+
+fwrite(frq_max_top, "gsem/FREQ_MAX.hits", sep=" ", quote=F, na=NA)
+frq_max_top <- read_exposure_data("gsem/FREQ_MAX.hits")
+frq_max_top <- clump_data(
+  frq_max_top,
+  clump_kb = 10000,
+  clump_r2 = 0.01,
+  bfile = "C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/1000genomes/1kg.v3/EUR",
+  plink_bin = "C:/Users/P018906/AppData/Local/R/win-library/4.3/genetics.binaRies/bin/plink"
+)
+
+frq_max_top <- frq_max_top %>% 
+  select(SNP) %>% 
+  left_join(frq_max_data) 
+
+```
+
+Maximum frequency plot Europeans:
+
+```{r, eval = F}
+
+
+png("metal/FREQ_MAX_manh.png", width=160, height=60, units="mm", res=1000)
+ggplot(frq_max_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, breaks = axis_set$center) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, ylim)) +
+  scale_color_manual(values = rep(c("#517f1c", "#88d631"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=frq_max_top, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=frq_max_top, 
+            aes(x=bp_cum, y = -log10(P) + 0.5, label = SNP),
+            color="grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  )
+
+dev.off()
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/metal/FREQ_MAX_manh.png)
+
+### Recent frequency
+
+How often someone used in the past couple of months/ years.
+
+```{r, eval = F}
+
+
+frq_past <- fread("metal/MA_FREQ_PAST_250919.txt.gz") 
+frq_past_X <- fread("metal/MA_FREQ_PAST_X_250409.txt")
+
+frq_past <- rbind(frq_past, frq_past_X) %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR),
+         CHR = as.numeric(CHR))
+
+frq_past_cum <- frq_past %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+frq_past_data <- frq_past %>% 
+  inner_join(frq_past_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- frq_past_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- frq_past_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 10.5) %>% 
+  pull(ylim)
+
+sig <- 5e-8
+
+```
+
+Recent frequency plot Europeans:
+
+```{r, eval = F}
+
+png("metal/FREQ_PAST_manh.png", width=160, height=60, units="mm", res=1000)
+ggplot(frq_past_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, breaks = axis_set$center) +
+  scale_y_continuous(expand = c(0,0), limits = c(0, ylim)) +
+  scale_color_manual(values = rep(c("#517f1c", "#88d631"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) 
+
+dev.off()
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/metal/FREQ_PAST_manh.png)
+
+## Non-European 
+
+We also show the non-European only results, first from the meta-analysis (including AllOfUs and Helius cohorts), then for AllOfUs separately. 
+
+### Meta-analysis
+
+```{r, eval = F}
+
+
+CANNABIS_EVR <- fread("metal/MA_CANNABIS_EVR_NONEUR_250704.txt.gz")
+
+CANNABIS_EVR_cum <- CANNABIS_EVR %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+CANNABIS_EVR_data <- CANNABIS_EVR %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  inner_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- CANNABIS_EVR_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- CANNABIS_EVR_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P)))) %>% 
+  pull(ylim)
+
+ylim <- ylim + 2
+
+sig <- 5e-8
+
+# Use hits clumped with FUMA
+
+CANNABIS_top <- fread("fuma/CANNABIS_EVR_noneur_riskloci.txt")
+
+CANNABIS_top <- CANNABIS_top %>% 
+  rename(SNP = rsID) %>% 
+  select(SNP) %>% 
+  left_join(CANNABIS_EVR_data) 
+
+# Add genes mapped positionally with FUMA
+
+CANNABIS_EVR_genes <- fread("fuma/CANNABIS_EVR_noneur_genes.txt")
+
+CANNABIS_EVR_genes_cum <- CANNABIS_EVR_genes %>% 
+  rename(CHR = chr) %>% 
+  filter(minGwasP <5e-8) %>% 
+  mutate(mid = end - ((end - start)/2)) %>%   
+  left_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = mid + bp_add) 
+
+## group loci that are close
+threshold <- 10000000
+
+CANNABIS_EVR_genes_top <- CANNABIS_EVR_genes_cum %>%
+  group_by(CHR) %>%
+  arrange(bp_cum) %>%
+  mutate(
+    Group = cumsum(ifelse(is.na(lag(bp_cum)) | (bp_cum - lag(bp_cum) > threshold), 1, 0))
+  ) %>%
+  group_by(CHR, Group) %>% 
+  arrange(minGwasP, .by_group = T) %>% 
+  slice(1) %>% 
+  ungroup()
+
+# make some lines for exact gene position
+
+dashedlines <- CANNABIS_EVR_genes_cum %>% 
+  select(bp_cum)
+
+x_coordinates <- eval(parse(text = as.character(dashedlines)))
+
+```
+
+Ever use plot non-Europeans:
+
+```{r, eval = F}
+
+png("metal/CANNABIS_EVR_noneur_manh.png", width=190, height=60, units="mm", res=1000)
+
+ggplot(CANNABIS_EVR_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  geom_vline(xintercept = x_coordinates, linetype = "dashed", color = "lightgrey", linewidth = 0.2) + 
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, 
+                     breaks = axis_set$center,
+                     expand = expansion(mult = c(0.01, 0.01))) +
+  coord_cartesian(ylim = c(0, ylim),
+                  clip = "off") +
+  scale_y_continuous(
+    breaks = pretty(c(ylim, 0)),
+    labels = function(b) abs(b) 
+  ) +
+  scale_color_manual(values = rep(c("#88d631", "#517f1c"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=CANNABIS_top, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            # label = "\U0001F341",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(
+    data = CANNABIS_EVR_genes_top,
+    aes(x = bp_cum, y = ylim + 1, label = symbol),
+    color = "#476f19",
+    size = 1.5,
+    angle = 90,
+    vjust = 0,
+    hjust = 1
+  ) 
+
+dev.off()
+
+```
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/metal/CANNABIS_EVR_noneur_manh.png)
+
+### AllOfUs
+
+Because there were hits for both ever use and frequency for the non-European analysis in AllOfUs (from GENESIS), we present these results separately.
+
+#### Ever use 
+
+First, data are prepared for the AllOfUs results from GENESIS for ever use. 
+
+```{r, eval = F}
+
+
+CANNABIS_EVR <- fread("genesis/ALLOFUS.NONEUR.CANNABIS_EVR.EZQC.txt.gz")
+
+CANNABIS_EVR_cum <- CANNABIS_EVR %>% 
+  rename(BP = POS, A1 = EFFECT_ALLELE, A2 = OTHER_ALLELE, P = PVAL) %>%
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+CANNABIS_EVR_data <- CANNABIS_EVR %>% 
+  rename(BP = POS, A1 = EFFECT_ALLELE, A2 = OTHER_ALLELE, P = PVAL) %>%
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  inner_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- CANNABIS_EVR_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- CANNABIS_EVR_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 10.5) %>% 
+  pull(ylim)
+
+sig <- 5e-8
+
+# Use hits clumped with FUMA
+
+CANNABIS_top <- fread("fuma/CANNABIS_EVR_noneur_AllOfUs_riskloci.txt")
+
+CANNABIS_top <- CANNABIS_top %>% 
+  rename(SNP = rsID) %>% 
+  select(SNP) %>% 
+  left_join(CANNABIS_EVR_data) 
+
+CANNABIS_top_nonoverlapping <- CANNABIS_top %>%
+  arrange(P) %>%  
+  group_by(CHR) %>%  
+  do({
+    snps <- .
+    kept <- c()
+    for (i in seq_len(nrow(snps))) {
+      pos <- snps$bp_cum[i]
+      if (all(abs(pos - snps$bp_cum[kept]) > 15000000)) {
+        kept <- c(kept, i)
+      }
+    }
+    snps[kept, ]
+  }) %>%
+  ungroup()
+
+# Add genes mapped positionally with FUMA
+
+CANNABIS_EVR_genes <- fread("fuma/CANNABIS_EVR_noneur_AllOfUs_genes.txt")
+
+CANNABIS_EVR_genes_cum <- CANNABIS_EVR_genes %>% 
+  rename(CHR = chr) %>% 
+  filter(minGwasP <5e-8) %>% 
+  mutate(mid = end - ((end - start)/2)) %>%   
+  left_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = mid + bp_add) 
+
+## group loci that are close
+threshold <- 10000000
+
+CANNABIS_EVR_genes_top <- CANNABIS_EVR_genes_cum %>%
+  group_by(CHR) %>%
+  arrange(bp_cum) %>%
+  mutate(
+    Group = cumsum(ifelse(is.na(lag(bp_cum)) | (bp_cum - lag(bp_cum) > threshold), 1, 0))
+  ) %>%
+  group_by(CHR, Group) %>% 
+  arrange(minGwasP, .by_group = T) %>% 
+  slice(1) %>% 
+  ungroup()
+
+# make some lines for exact gene position
+
+dashedlines <- CANNABIS_EVR_genes_cum %>% 
+  select(bp_cum)
+
+x_coordinates <- eval(parse(text = as.character(dashedlines)))
+
+# The PELP1 is still a bit too close to TOM1L2, so add that one separately
+
+CANNABIS_EVR_genes_TOM1L2 <- CANNABIS_EVR_genes_top %>% filter(symbol == "TOM1L2")
+CANNABIS_EVR_genes_top <- CANNABIS_EVR_genes_top %>% filter(symbol != "TOM1L2")
+
+```
+
+Ever use plot non-Europeans from the AllOfUs sample:
+
+```{r, eval = F}
+
+png("genesis/CANNABIS_EVR_noneur_AllOfUs_manh.png", width=190, height=60, units="mm", res=1000)
+
+ggplot(CANNABIS_EVR_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  geom_vline(xintercept = x_coordinates, linetype = "dashed", color = "lightgrey", linewidth = 0.2) + 
+  
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, 
+                     breaks = axis_set$center,
+                     expand = expansion(mult = c(0.01, 0.01))) +
+  coord_cartesian(ylim = c(0, ylim),
+                  clip = "off") +
+  scale_y_continuous(
+    breaks = pretty(c(ylim, 0)),
+    labels = function(b) abs(b) 
+  ) +
+  scale_color_manual(values = rep(c("#88d631", "#517f1c"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(0.5,3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_text(vjust = 0.5),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=CANNABIS_top, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            # label = "\U0001F341",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text_repel(
+    data = CANNABIS_top,
+    aes(x = bp_cum, y = -log10(P) + 1, label = SNP),
+    color = "grey30",
+    size = 1.5,
+    angle = 90,
+    direction = "y",
+    hjust = 0,
+    box.padding = 0.3,
+    point.padding = 0.3,
+    force = 2,
+    max.overlaps = Inf
+  ) +
+  
+  geom_text(
+    data = CANNABIS_EVR_genes_top,
+    aes(x = bp_cum, y = ylim + 1, label = symbol),
+    color = "#476f19",
+    size = 1.5,
+    angle = 90,
+    vjust = 0,
+    hjust = 1
+  ) +
+  
+  geom_text(
+    data = CANNABIS_EVR_genes_TOM1L2,
+    aes(x = bp_cum, y = ylim + 1, label = symbol),
+    color = "#476f19",
+    size = 1.5,
+    angle = 90,
+    vjust = 1,
+    hjust = 1
+  ) 
+
+dev.off()
+
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/genesis/CANNABIS_EVR_noneur_AllOfUs_manh.png)
+
+#### Recent frequency
+
+AllOfUs also had a measure of recent frequency. 
+
+```{r, eval = F}
+
+FREQ_PAST <- fread("genesis/AllOfUs_v8_NonEUR_FREQ_PAST_formatted.csv.gz")
+
+FREQ_PAST_cum <- FREQ_PAST %>% 
+  rename(BP = POS) %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  group_by(CHR) %>% 
+  summarise(max_bp = max(BP)) %>% 
+  mutate(bp_add = lag(cumsum(as.numeric(max_bp)), default = 0)) %>% 
+  select(CHR, bp_add)
+
+FREQ_PAST_data <- FREQ_PAST %>% 
+  rename(BP = POS) %>% 
+  mutate(CHR = ifelse(CHR == "X", 23, CHR)) %>% 
+  mutate(CHR = as.numeric(CHR)) %>% 
+  inner_join(FREQ_PAST_cum, by = "CHR") %>% 
+  mutate(bp_cum = BP + bp_add) %>%
+  mutate(uniqID = paste(CHR, BP, A1, A2, sep = ":"))
+
+axis_set <- FREQ_PAST_data %>% 
+  group_by(CHR) %>% 
+  summarize(center = mean(bp_cum))
+
+ylim <- CANNABIS_EVR_data %>% 
+  filter(P == min(P)) %>% 
+  mutate(ylim = abs(floor(log10(P))) + 10.5) %>% 
+  pull(ylim)
+
+sig <- 5e-8
+
+
+# Use hits clumped with FUMA
+
+FREQ_PAST_top <- fread("fuma/FREQ_PAST_noneur_AllOfUs_riskloci.txt")
+
+FREQ_PAST_top <- FREQ_PAST_top %>% 
+  rename(SNP = rsID) %>% 
+  select(SNP) %>% 
+  left_join(FREQ_PAST_data) 
+
+FREQ_PAST_top_nonoverlapping <- CANNABIS_top %>%
+  arrange(P) %>%  
+  group_by(CHR) %>%  
+  do({
+    snps <- .
+    kept <- c()
+    for (i in seq_len(nrow(snps))) {
+      pos <- snps$bp_cum[i]
+      if (all(abs(pos - snps$bp_cum[kept]) > 15000000)) {
+        kept <- c(kept, i)
+      }
+    }
+    snps[kept, ]
+  }) %>%
+  ungroup()
+
+# Add genes mapped positionally with FUMA
+
+FREQ_PAST_genes <- fread("fuma/FREQ_PAST_noneur_AllOfUs_genes.txt")
+
+FREQ_PAST_genes_cum <- FREQ_PAST_genes %>% 
+  rename(CHR = chr) %>% 
+  filter(minGwasP <5e-8) %>% 
+  mutate(mid = end - ((end - start)/2)) %>%   
+  left_join(CANNABIS_EVR_cum, by = "CHR") %>% 
+  mutate(bp_cum = mid + bp_add) 
+
+## group loci that are close
+threshold <- 10000000
+
+FREQ_PAST_genes_top <- FREQ_PAST_genes_cum %>%
+  group_by(CHR) %>%
+  arrange(bp_cum) %>%
+  mutate(
+    Group = cumsum(ifelse(is.na(lag(bp_cum)) | (bp_cum - lag(bp_cum) > threshold), 1, 0))
+  ) %>%
+  group_by(CHR, Group) %>% 
+  arrange(minGwasP, .by_group = T) %>% 
+  slice(1) %>% 
+  ungroup()
+
+# make some lines for exact gene position
+
+dashedlines <- CANNABIS_EVR_genes_cum %>% 
+  select(bp_cum)
+
+x_coordinates <- eval(parse(text = as.character(dashedlines)))
+
+
+```
+
+
+Recent frequency plot non-Europeans from the AllOfUs sample:
+
+```{r, eval = F}
+
+png("genesis/FREQ_PAST_noneur_AllOfUs_manh.png", width=190, height=60, units="mm", res=1000)
+ggplot(FREQ_PAST_data, aes(x = bp_cum, y = -log10(P), color = as_factor(CHR), size = -log10(P))) +
+  
+  geom_hline(yintercept = -log10(sig), color = "grey40", linetype = "dashed", linewidth = 0.5) +
+  geom_vline(xintercept = x_coordinates, linetype = "dashed", color = "lightgrey", linewidth = 0.2) +
+  geom_point(alpha = 0.75, size = 0.5) +
+  scale_x_continuous(label = axis_set$CHR, breaks = axis_set$center) +
+  coord_cartesian(ylim = c(0, ylim),
+                  clip = "off") +
+  scale_y_continuous(
+    breaks = pretty(c(0, ylim)),
+    labels = function(b) abs(b) 
+  ) +
+  scale_color_manual(values = rep(c("#544cb2", "#aea7ff"), unique(length(axis_set$CHR)))) +
+  scale_size_continuous(range = c(-0.5,-3)) +
+  labs(x = NULL, 
+       y = bquote(-log[10](italic(p)))) + 
+  
+  theme_classic() +
+  theme( 
+    legend.position = "none",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.x = element_blank(),
+    text = element_text(size = 6.5)
+  ) +
+  
+  geom_text(data=FREQ_PAST_top_nonoverlapping, 
+            aes(x=bp_cum, y = -log10(P)),
+            label = "\U25C7",
+            # label = "\U0001F341",
+            color="#a6761d",
+            size = 3
+  ) +
+  
+  geom_text(data=FREQ_PAST_top_nonoverlapping, 
+            aes(x=bp_cum, y = -log10(P) + 0.5, label = SNP),
+            color="grey30",
+            size = 1.5,
+            angle = 90,
+            hjust = 0
+  ) +
+  
+  geom_text(
+    data = CANNABIS_EVR_genes_top,
+    aes(x = bp_cum, y = ylim + 1, label = symbol),
+    color = "#383278",
+    size = 1.5,
+    angle = 90,
+    vjust = 0,
+    hjust = 1
+  ) 
+dev.off()
+
+```
+
+![](C:/Users/P018906/OneDrive - Amsterdam UMC/Documents/AMC bridge/ICC4/results/genesis/FREQ_PAST_noneur_AllOfUs_manh.png)
